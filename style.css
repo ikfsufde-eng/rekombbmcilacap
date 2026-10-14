@@ -73,3 +73,6 @@ body{display:flex;flex-direction:column;height:100dvh;background:var(--bg);color
   .nav-item.active i{background:none}
   #toast{bottom:28px}
 }
+
+.scan-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+#area-scanner .scan-actions .btn{margin-top:0}

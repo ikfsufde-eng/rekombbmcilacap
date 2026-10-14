@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
@@ -62,8 +62,12 @@
         <div class="scan-line"></div>
       </div>
       <canvas id="canvas-scanner" hidden></canvas>
-      <p>Arahkan kamera ke QR code</p>
-      <button class="btn danger" id="btnTutup">Tutup kamera</button>
+      <p id="scan-status">Arahkan kamera ke QR code</p>
+      <div class="scan-actions">
+        <button class="btn primary" id="btnFoto">Pilih foto QR</button>
+        <button class="btn danger" id="btnTutup">Tutup</button>
+      </div>
+      <input type="file" id="qrFile" accept="image/*" hidden>
     </div>
 
     <div id="desktop-wrapper">

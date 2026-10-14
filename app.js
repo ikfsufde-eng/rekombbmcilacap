@@ -1,4 +1,5 @@
 const $ = id => document.getElementById(id);
+const DEFAULT_URL = 'https://sites.google.com/view/rekombbmcilacap/halaman-muka';
 
 // ---------- Toast ----------
 let toastT;
@@ -24,13 +25,14 @@ function switchTab(tabId) {
   panel.classList.add('active'); btn.classList.add('active');
   $('app-title').textContent = btn.dataset.title;
   loadPanel(panel);
-  if (tabId === 'tab4') setTimeout(aturModeDesktop, 30);
-  else tutupScan();
+  if (tabId === 'tab4') {
+    setTimeout(aturModeDesktop, 30);
+    if (!viewer.getAttribute('src')) { $('linkInput').value = DEFAULT_URL; bukaLink(); }
+  }
+  else if (typeof tutupScan === 'function') tutupScan();
   try { localStorage.setItem('lastTab', tabId); } catch (e) {}
 }
 document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
-let last = 'tab1'; try { last = localStorage.getItem('lastTab') || 'tab1'; } catch (e) {}
-switchTab(last);
 
 // ---------- Buka Link (mode desktop + zoom) ----------
 const viewer = $('viewerTab4'), wrapper = $('desktop-wrapper');
@@ -87,48 +89,55 @@ new ResizeObserver(aturModeDesktop).observe(wrapper);
 
 // ---------- Scanner QR ----------
 const video = $('video-scanner'), canvas = $('canvas-scanner'), ctx = canvas.getContext('2d', { willReadFrequently: true });
-let stream = null, raf = null, busy = false, detector = null;
+let stream = null, timer = null, detector = null;
 if ('BarcodeDetector' in window) { try { detector = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) {} }
+const status = t => { $('scan-status').textContent = t; };
 
+function bacaQR(src, w, h, max = 640) {
+  if (typeof jsQR === 'undefined') return null;
+  const s = Math.min(1, max / Math.max(w, h));
+  canvas.width = Math.round(w * s); canvas.height = Math.round(h * s);
+  ctx.drawImage(src, 0, 0, canvas.width, canvas.height);
+  const r = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+  return r ? r.data : null;
+}
 async function mulaiScan() {
-  if (!navigator.mediaDevices?.getUserMedia) return toast('Browser tidak mendukung kamera');
   $('area-scanner').style.display = 'block';
   wrapper.style.display = 'none';
+  if (!navigator.mediaDevices?.getUserMedia) return status('Kamera tidak tersedia. Gunakan tombol "Pilih foto QR".');
+  status('Menyalakan kamera…');
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     video.srcObject = stream; await video.play();
-    raf = requestAnimationFrame(scanLoop);
+    status('Arahkan kamera ke QR code');
+    scanTick();
   } catch (e) {
-    toast('Kamera tidak bisa diakses. Izinkan akses kamera di pengaturan browser.');
-    tutupScan();
+    const pesan = { NotAllowedError: 'Izin kamera ditolak. Izinkan kamera lewat ikon di address bar, lalu coba lagi.',
+      NotFoundError: 'Kamera tidak ditemukan. Gunakan tombol "Pilih foto QR".',
+      NotReadableError: 'Kamera sedang dipakai aplikasi lain.' };
+    status(pesan[e.name] || 'Kamera gagal dibuka (' + e.name + ').');
   }
 }
-async function scanLoop() {
+async function scanTick() {
   if (!stream) return;
-  if (video.readyState === video.HAVE_ENOUGH_DATA && !busy) {
-    busy = true;
-    try {
-      let text = null;
-      if (detector) {
-        const codes = await detector.detect(video);
-        if (codes[0]?.rawValue) text = codes[0].rawValue;
-      } else if (typeof jsQR !== 'undefined') {
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        const r = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, { inversionAttempts: 'dontInvert' });
-        if (r?.data) text = r.data;
-      }
-      if (text) { busy = false; return berhasilScan(text); }
-    } catch (e) {}
-    busy = false;
+  if (video.readyState >= 2 && video.videoWidth) {
+    let text = null;
+    if (detector) {
+      try {
+        const c = await Promise.race([detector.detect(video), new Promise(r => setTimeout(() => r([]), 400))]);
+        text = c[0]?.rawValue || null;
+      } catch (e) { detector = null; }
+    }
+    if (!text) text = bacaQR(video, video.videoWidth, video.videoHeight);
+    if (text) return berhasilScan(text);
   }
-  raf = requestAnimationFrame(scanLoop);
+  timer = setTimeout(scanTick, 200);
 }
 function berhasilScan(text) {
   $('linkInput').value = text; tutupScan(); bukaLink();
 }
 function tutupScan() {
-  if (raf) cancelAnimationFrame(raf); raf = null;
+  clearTimeout(timer); timer = null;
   stream?.getTracks().forEach(t => t.stop()); stream = null;
   $('area-scanner').style.display = 'none';
   wrapper.style.display = 'block';
@@ -136,8 +145,22 @@ function tutupScan() {
 }
 $('btnScan').onclick = mulaiScan;
 $('btnTutup').onclick = tutupScan;
+$('btnFoto').onclick = () => $('qrFile').click();
+$('qrFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try {
+    const bmp = await createImageBitmap(f);
+    const text = bacaQR(bmp, bmp.width, bmp.height, 1200);
+    text ? berhasilScan(text) : status('QR tidak terbaca di foto ini. Coba foto yang lebih jelas.');
+  } catch (err) { status('Foto tidak bisa dibaca.'); }
+};
 
 // ---------- Service Worker ----------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => console.error('SW gagal:', err)));
 }
+
+// ---------- Mulai ----------
+let last = 'tab1'; try { last = localStorage.getItem('lastTab') || 'tab1'; } catch (e) {}
+switchTab(last);
