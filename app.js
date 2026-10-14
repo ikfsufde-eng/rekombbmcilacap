@@ -5,7 +5,7 @@ const DEFAULT_URL = 'https://sites.google.com/view/rekombbmcilacap/halaman-muka'
 const ADMIN_PIN = '123456';
 
 // Opsional: Jika Anda punya URL Google Apps Script default untuk penarikan notifikasi otomatis, isi di sini:
-const DEFAULT_NOTIF_API_URL = '';
+const DEFAULT_NOTIF_API_URL = 'https://script.google.com/macros/s/AKfycby_gY2G8GO8Mya8AOnT83f-cjNo5-QxaWZePoqgWX8Ot7zqFQtLG8TWURe-DhACM8ZjjQ/exec';
 
 // ═══════════════════════════════════════════
 //  TOAST & AUDIO FEEDBACK
