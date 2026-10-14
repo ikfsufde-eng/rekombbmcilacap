@@ -1,10 +1,14 @@
 const $ = id => document.getElementById(id);
 const DEFAULT_URL = 'https://sites.google.com/view/rekombbmcilacap/halaman-muka';
-const BERKAS_OLD_BASE = 'https://script.google.com/macros/s/AKfycbzPTtwUl6RtXX3BBHg8f4LUnGj9Vf-lzHXl7zzesbuccTw5ekpTByGPb5cEnx84egUo/exec';
-const BERKAS_NEW_BASE = 'https://script.google.com/macros/s/AKfycbyiD8iRCvsPfws2lzAcuuGtd52RE3aqtdv7Q4GeALqdCMi0eVN7_SFpPiYqU8s21i85/exec';
+
+// PIN Admin untuk menambah/mengatur pengumuman notifikasi dari dalam aplikasi
+const ADMIN_PIN = '123456';
+
+// Opsional: Jika Anda punya URL Google Apps Script default untuk penarikan notifikasi otomatis, isi di sini:
+const DEFAULT_NOTIF_API_URL = '';
 
 // ═══════════════════════════════════════════
-//  TOAST & AUDIO FEEDBACK (WEB AUDIO API)
+//  TOAST & AUDIO FEEDBACK
 // ═══════════════════════════════════════════
 let toastT;
 let isSoundOn = true;
@@ -111,11 +115,10 @@ document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', 
   }
 }));
 
-// Tombol Quick Scan di Header
 $('btnQuickScan').onclick = () => { switchTab('tab4'); mulaiScan(); };$('btnEmptyScan').onclick = () => mulaiScan();
 
 // ═══════════════════════════════════════════
-//  TAB 4: BUKA LINK, ZOOM, & RIWAYAT
+//  TAB 4: BUKA LINK APA ADANYA (TANPA KONVERSI)
 // ═══════════════════════════════════════════
 const viewer = $('viewerTab4'), wrapper =$('desktop-wrapper');
 let zoom = 1, pt = [];
@@ -134,16 +137,6 @@ function ubahZoom(d) {
   zoom = Math.min(2, Math.max(0.5, +(zoom + d).toFixed(1)));
   $('zoom-text').textContent = Math.round(zoom * 100) + '%';
   aturModeDesktop();
-}
-
-function normalisasi(v) {
-  v = v.trim();
-  if (!v) return '';
-  // Jika berupa URL Berkas Digital lama, arahkan ke URL baru seperti logika QR9
-  if (v.includes(BERKAS_OLD_BASE)) {
-    v = v.replace(BERKAS_OLD_BASE, BERKAS_NEW_BASE);
-  }
-  return /^https?:\/\//i.test(v) ? v : 'https://' + v;
 }
 
 function toggleClearBtn() {
@@ -176,40 +169,33 @@ function selesaiLoading() {
   setTimeout(() => { $('progress').style.display = 'none'; b.style.width = '0%'; }, 400);
 }
 
+// Buka Link Apa Adanya tanpa memodifikasi URL script
 function bukaLink() {
-  let raw = $('linkInput').value.trim();
+  const raw = $('linkInput').value.trim();
   if (!raw) return toast('Masukkan link atau scan QR terlebih dahulu');
 
-  // Jika input adalah kode ID pendek (misal: A-223344), buka di Cek Status
-  if (/^[A-Za-z]-\d+$/i.test(raw)) {
-    const cekUrl = `https://script.google.com/macros/s/AKfycbyIkDej3qauwaYyPRwZzqoVnGDPhJKfjx1wT4sJrv-JTl0JQ2AOB-YLeKGlhLswagnD4w/exec?id=${encodeURIComponent(raw)}`;
-    raw = cekUrl;
-  }
-
-  const url = normalisasi(raw);
-  $('linkInput').value = url;
   toggleClearBtn();
-  saveHistory(url);
+  saveHistory(raw);
 
   $('empty-state').style.display = 'none';
   viewer.style.display = 'block';
   $('hint').style.display = 'flex';
   aturModeDesktop();
   mulaiLoading();
-  viewer.src = url;
+  viewer.src = raw;
 }
 
 viewer.addEventListener('load', () => { if (viewer.getAttribute('src')) selesaiLoading(); });
 $('btnBuka').onclick = bukaLink;
 $('btnDefault').onclick = () => bukaEksternal(DEFAULT_URL);
-$('btnHint').onclick = () => bukaEksternal(normalisasi($('linkInput').value));
+$('btnHint').onclick = () => bukaEksternal($('linkInput').value.trim());
 $('hintClose').onclick = () => {$('hint').style.display = 'none'; };
 $('linkInput').addEventListener('keydown', e => { if (e.key === 'Enter') bukaLink(); });$('btnReload').onclick = () => {
-  const u = normalisasi($('linkInput').value);
+  const u = $('linkInput').value.trim();
   if (u) { mulaiLoading(); viewer.src = u; } else toast('Belum ada halaman dibuka');
 };
 $('btnExternal').onclick = () => {
-  const u = normalisasi($('linkInput').value);
+  const u = $('linkInput').value.trim();
   u ? window.open(u, '_blank', 'noopener') : toast('Belum ada link');
 };
 $('zoomIn').onclick = () => ubahZoom(0.1);$('zoomOut').onclick = () => ubahZoom(-0.1);
@@ -261,7 +247,7 @@ $('btnClearHistory').onclick = () => {
 };
 
 // ═══════════════════════════════════════════
-//  QR9 SCANNER ENGINE (DARI SCRIPT CONTOH)
+//  QR9 SCANNER ENGINE (MURNI TANPA DECODE)
 // ═══════════════════════════════════════════
 const video = $('video-scanner');
 const canvas = $('canvas-scanner');
@@ -280,8 +266,6 @@ let lastScannedTime = 0;
 
 let barcodeDetector = null;
 let jsQRLib = window.jsQR || null;
-let isDecodeMode = false;
-const SECRET_KEY = 55; // Kunci XOR simetris sesuai rumus Google Sheet
 
 function initDetector() {
   if ('BarcodeDetector' in window) {
@@ -312,40 +296,6 @@ function setScanDot(state) {
 function showPerm(show) {
   $('perm-overlay').style.display = show ? 'flex' : 'none';
 }
-
-// Pembongkar Enkripsi XOR Hex (ENC-...)
-function decodeToken(tokenStr) {
-  try {
-    if (!tokenStr.startsWith('ENC-')) return null;
-    const hex = tokenStr.replace('ENC-', '').trim();
-    let rawText = '';
-    for (let i = 0; i < hex.length; i += 2) {
-      const charCode = parseInt(hex.substr(i, 2), 16);
-      rawText += String.fromCharCode(charCode ^ SECRET_KEY);
-    }
-    const parts = rawText.split('|');
-    if (parts.length >= 1 && parts[0]) {
-      return {
-        id: parts[0].trim(),
-        nama: parts[1] ? parts[1].trim() : '',
-        kapal: parts[2] ? parts[2].trim() : ''
-      };
-    }
-    return null;
-  } catch (e) {
-    return null;
-  }
-}
-
-// Toggle Decode Mode & Sound Mode
-$('btn-decode-mode').onclick = function() {
-  isDecodeMode = !isDecodeMode;
-  this.textContent = isDecodeMode ? '🔓 Decode: ON' : '🔒 Decode: OFF';
-  this.classList.toggle('on', isDecodeMode);
-  setScanResult(isDecodeMode
-    ? '🔓 Mode Decode ON: Token ENC-... otomatis diekstrak menjadi ID.'
-    : '🔒 Mode Decode OFF: Membaca QR Link / Teks standar.', 'info');
-};
 
 $('btn-sound-mode').onclick = function() {
   isSoundOn = !isSoundOn;
@@ -483,7 +433,6 @@ function scanLoop() {
           ctx.drawImage(video, cropX, cropY, cropSize, cropSize, 0, 0, cs, cs);
           const imageData = ctx.getImageData(0, 0, cs, cs);
           const d = imageData.data;
-          // Peningkatan kontras piksel seperti script QR9
           for (let i = 0; i < d.length; i += 4) {
             const g = (d[i] * 77 + d[i + 1] * 150 + d[i + 2] * 29) >> 8;
             const v = g < 128 ? (g > 40 ? g - 40 : 0) : (g < 215 ? g + 40 : 255);
@@ -503,49 +452,29 @@ function scanLoop() {
   });
 }
 
+// Munculkan dan buka hasil scan apa adanya tanpa konversi
 function handleScan(decodedText) {
-  let id = String(decodedText).trim();
-  if (!id) return;
+  const rawText = String(decodedText).trim();
+  if (!rawText) return;
 
-  // Cegah duplikasi scan beruntun dalam 4 detik
-  if (id === lastScannedID && (Date.now() - lastScannedTime < 4000)) return;
-  lastScannedID = id;
+  if (rawText === lastScannedID && (Date.now() - lastScannedTime < 3500)) return;
+  lastScannedID = rawText;
   lastScannedTime = Date.now();
 
-  // Feedback suara & getar
   playBeep(920, 130);
   if (navigator.vibrate) navigator.vibrate(100);
 
-  // Cek apakah token terenkripsi ENC-
-  if (isDecodeMode || id.startsWith('ENC-')) {
-    if (id.startsWith('ENC-')) {
-      const tokenData = decodeToken(id);
-      if (tokenData && tokenData.id) {
-        id = tokenData.id;
-        addAppNotification(
-          'QR Token Terdekripsi',
-          `Berhasil mengekstrak ID: ${tokenData.id} ${tokenData.nama ? '(' + tokenData.nama + ')' : ''}`
-        );
-      } else if (isDecodeMode) {
-        setScanResult('❌ Token QR (ENC) tidak valid / rusak.', 'err');
-        setScanDot('err');
-        cooldownUntil = Date.now() + 2000;
-        return;
-      }
-    }
-  }
-
-  setScanResult('✅ Terbaca: ' + id, 'ok');
-  $('linkInput').value = id;
+  setScanResult('✅ Hasil Scan: ' + rawText, 'ok');
+  $('linkInput').value = rawText;
   toggleClearBtn();
 
   setTimeout(() => {
     stopCamera(false);
     bukaLink();
-  }, 450);
+  }, 400);
 }
 
-// Scan dari File Gambar (Menggunakan FileReader & Image seperti script QR9)
+// Scan dari File Gambar
 $('btnFoto').onclick = () => $('qrFile').click();$('qrFile').onchange = function(e) {
   if (!e.target.files || !e.target.files.length) return;
   const file = e.target.files[0];
@@ -583,28 +512,23 @@ $('btnTutup').onclick = () => stopCamera(false);
 $('btnRestartCam').onclick = () => { lastScannedID = ''; isProcessing = false; cooldownUntil = 0; missStreak = 0; scanning = false; startCamera(); };$('btn-allow').onclick = () => { showPerm(false); startCamera(); };
 
 // ═══════════════════════════════════════════
-//  PUSAT NOTIFIKASI & PUSH MESSAGE PELAYANAN
+//  PUSAT NOTIFIKASI & PANEL PENGATURAN ADMIN
 // ═══════════════════════════════════════════
-const NOTIF_KEY = 'fuelstar_notifications_v1';
+const NOTIF_KEY = 'fuelstar_notifications_v2';
+const NOTIF_API_KEY = 'fuelstar_notif_api_url';
+let isAdminUnlocked = false;
+
 const defaultNotifs = [
   {
     id: 'n1',
     title: 'Selamat Datang di Fuel Star W.A',
-    body: 'Gunakan menu Cek Status untuk memantau proses rekomendasi BBM, atau menu Scan QR untuk verifikasi berkas digital cepat.',
-    time: 'Hari ini',
+    body: 'Gunakan tombol Pengajuan di tengah bawah untuk mengajukan rekomendasi baru, atau Cek Status untuk memantau proses.',
+    time: 'Info Layanan',
     unread: true,
     icon: 'verified'
   },
   {
     id: 'n2',
-    title: 'Pembaruan Pemindai QR Code (QR9 Engine)',
-    body: 'Pemindai QR kini mendukung fokus otomatis, pembacaan QR buram, serta dekripsi otomatis token ENC.',
-    time: 'Info Sistem',
-    unread: true,
-    icon: 'qr_code_scanner'
-  },
-  {
-    id: 'n3',
     title: 'Jam Operasional Pelayanan',
     body: 'Pelayanan verifikasi & penerbitan rekomendasi BBM Dinas Perikanan Kab. Cilacap buka sesuai jam kerja kedinasan.',
     time: 'Pengumuman',
@@ -623,7 +547,7 @@ function getNotifs() {
 }
 
 function saveNotifs(list) {
-  try { localStorage.setItem(NOTIF_KEY, JSON.stringify(list.slice(0, 20))); } catch (e) {}
+  try { localStorage.setItem(NOTIF_KEY, JSON.stringify(list.slice(0, 30))); } catch (e) {}
   renderNotifs();
 }
 
@@ -634,24 +558,73 @@ function renderNotifs() {
   badge.textContent = unreadCount;
   badge.classList.toggle('hidden', unreadCount === 0);
 
+  if (!list.length) {
+    $('notif-list').innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:0.8rem;padding:24px;">Belum ada pengumuman.</div>';
+    return;
+  }
+
   $('notif-list').innerHTML = list.map(n => `
     <div class="notif-card ${n.unread ? 'unread' : ''}" data-id="${n.id}">
-      <div class="notif-icon"><i class="material-icons-round">${n.icon || 'notifications'}</i></div>
+      <div class="notif-icon"><i class="material-icons-round">${n.icon || 'campaign'}</i></div>
       <div class="notif-body">
         <h4>${n.title}</h4>
         <p>${n.body}</p>
         <span class="notif-time">${n.time}</span>
       </div>
+      ${isAdminUnlocked ? `<button class="notif-del-btn" data-del="${n.id}" title="Hapus"><i class="material-icons-round" style="font-size:18px;">delete</i></button>` : ''}
     </div>
   `).join('');
+
+  if (isAdminUnlocked) {
+    $('notif-list').querySelectorAll('.notif-del-btn').forEach(btn => {
+      btn.onclick = e => {
+        e.stopPropagation();
+        const id = btn.dataset.del;
+        saveNotifs(getNotifs().filter(x => x.id !== id));
+        toast('Pengumuman dihapus');
+      };
+    });
+  }
 }
 
-function addAppNotification(title, body, icon = 'notifications_active') {
+function addAppNotification(title, body, icon = 'campaign', customId = null, customTime = null) {
   const list = getNotifs();
-  const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
-  list.unshift({ id: 'n_' + Date.now(), title, body, time, unread: true, icon });
+  const id = customId || ('n_' + Date.now());
+  if (list.some(x => x.id === id)) return; // Hindari duplikat jika sinkron dari server
+
+  const time = customTime || (new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' · ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB');
+  list.unshift({ id, title, body, time, unread: true, icon });
   saveNotifs(list);
+  playBeep(740, 100);
   sendBrowserPush(title, body);
+}
+
+// Tarik Pengumuman dari URL Google Apps Script Admin (Jika dikonfigurasi)
+async function syncRemoteNotifications(showFeedback = false) {
+  const apiUrl = localStorage.getItem(NOTIF_API_KEY) || DEFAULT_NOTIF_API_URL;
+  if (!apiUrl) {
+    if (showFeedback) toast('ℹ️ Belum ada URL Server Notifikasi yang diatur di menu Admin.');
+    return;
+  }
+  if (showFeedback) toast('⏳ Menarik info terbaru dari server…');
+  try {
+    const url = apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'action=get_notifs&t=' + Date.now();
+    const res = await fetch(url, { redirect: 'follow' });
+    const data = await res.json();
+    if (Array.isArray(data.notifications)) {
+      let added = 0;
+      const current = getNotifs();
+      data.notifications.forEach(item => {
+        if (item.id && !current.some(x => x.id === String(item.id))) {
+          addAppNotification(item.title, item.body, item.icon || 'campaign', String(item.id), item.time);
+          added++;
+        }
+      });
+      if (showFeedback) toast(added > 0 ? `✅ ${added} pengumuman baru diterima!` : '✅ Info sudah paling baru.');
+    }
+  } catch (err) {
+    if (showFeedback) toast('⚠️ Gagal menarik notifikasi dari server.');
+  }
 }
 
 function sendBrowserPush(title, body) {
@@ -694,28 +667,84 @@ $('btnMarkAllRead').onclick = () => {
   toast('Semua pesan ditandai sudah dibaca');
 };
 
+$('btnSyncNotif').onclick = () => syncRemoteNotifications(true);
+
+// ── LOGIKA PANEL ADMIN NOTIFIKASI ──
+$('btnToggleAdmin').onclick = () => {
+  const panel = $('admin-notif-panel');
+  panel.hidden = !panel.hidden;
+  $('adm-api-url').value = localStorage.getItem(NOTIF_API_KEY) || DEFAULT_NOTIF_API_URL;
+};
+
+$('btnAdminLogin').onclick = () => {
+  const pin = $('admin-pin-input').value.trim();
+  if (pin === ADMIN_PIN) {
+    isAdminUnlocked = true;
+    $('admin-login-box').hidden = true;
+    $('admin-form-box').hidden = false;
+    $('admin-pin-input').value = '';
+    renderNotifs();
+    toast('🔓 Mode Admin Aktif');
+  } else {
+    toast('❌ PIN Admin salah!');
+  }
+};
+
+$('btnAdminLogout').onclick = () => {
+  isAdminUnlocked = false;
+  $('admin-login-box').hidden = false;
+  $('admin-form-box').hidden = true;
+  $('admin-notif-panel').hidden = true;
+  renderNotifs();
+  toast('🔒 Mode Admin Dikunci');
+};
+
+$('btnAdminPublish').onclick = async () => {
+  const title = $('adm-title').value.trim();
+  const body = $('adm-body').value.trim();
+  const icon = $('adm-icon').value;
+  if (!title || !body) return toast('⚠️ Judul dan isi pengumuman wajib diisi!');
+
+  // 1. Tampilkan langsung di aplikasi & kirim Push Notif
+  addAppNotification(title, body, icon);
+
+  // 2. Jika ada URL API Google Apps Script, kirim juga ke server agar tampil di semua HP pengguna
+  const apiUrl = localStorage.getItem(NOTIF_API_KEY) || DEFAULT_NOTIF_API_URL;
+  if (apiUrl) {
+    try {
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'add_notif', title, body, icon })
+      });
+    } catch (e) {}
+  }
+
+  $('adm-title').value = '';$('adm-body').value = '';
+  toast('📢 Pengumuman berhasil diterbitkan!');
+};
+
+$('btnSaveApiUrl').onclick = () => {
+  const val = $('adm-api-url').value.trim();
+  localStorage.setItem(NOTIF_API_KEY, val);
+  toast('✅ URL API Notifikasi disimpan');
+  if (val) syncRemoteNotifications(true);
+};
+
 $('btnEnablePush').onclick = async () => {
   if (!('Notification' in window)) return toast('Browser ini tidak mendukung Push Notification');
   const perm = await Notification.requestPermission();
   if (perm === 'granted') {
     $('push-banner').style.display = 'none';
-    toast('✅ Notifikasi Push berhasil diaktifkan!');
+    toast('✅ Notifikasi Layar berhasil diaktifkan!');
     sendBrowserPush('Fuel Star W.A Aktif', 'Anda akan menerima notifikasi layanan secara langsung.');
   } else {
     toast('⚠️ Izin notifikasi belum diberikan');
   }
 };
 
-$('btnTestPush').onclick = () => {
-  playBeep(740, 100);
-  addAppNotification(
-    'Informasi Layanan BBM',
-    'Sistem sinkronisasi rekomendasi BBM dan berkas digital berjalan normal dan siap melayani.'
-  );
-  toast('🔔 Pesan notifikasi baru diterima');
-};
-
 renderNotifs();
+setTimeout(() => syncRemoteNotifications(false), 3000);
 
 // ═══════════════════════════════════════════
 //  SERVICE WORKER & INIT
