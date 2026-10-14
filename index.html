@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
@@ -55,6 +55,7 @@
       <button class="chip" id="btnExternal"><i class="material-icons-round">open_in_new</i>Browser</button>
     </div>
     <div id="progress"><div id="progress-bar"></div></div>
+    <div id="hint"><span>Halaman kosong atau "menolak terhubung"? Situs itu tidak mengizinkan dibuka di dalam aplikasi.</span><button class="btn primary" id="btnHint">Buka di browser</button><button class="chip icon" id="hintClose" aria-label="Tutup"><i class="material-icons-round">close</i></button></div>
 
     <div id="area-scanner">
       <div class="scan-box">
@@ -73,7 +74,9 @@
     <div id="desktop-wrapper">
       <div id="empty-state">
         <i class="material-icons-round">travel_explore</i>
-        <p>Masukkan link atau scan QR code untuk membuka halaman.</p>
+        <strong>Halaman Muka Rekom BBM Cilacap</strong>
+        <p>Buka halaman utama di browser, atau masukkan link / scan QR code untuk membuka halaman lain di sini.</p>
+        <button class="btn primary" id="btnDefault">Buka Halaman Muka</button>
       </div>
       <iframe id="viewerTab4" title="Halaman web"></iframe>
     </div>

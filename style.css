@@ -76,3 +76,10 @@ body{display:flex;flex-direction:column;height:100dvh;background:var(--bg);color
 
 .scan-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 #area-scanner .scan-actions .btn{margin-top:0}
+
+#empty-state strong{color:var(--text);font-size:1.05rem}
+#empty-state p{max-width:320px;line-height:1.5}
+#empty-state .btn{margin-top:6px;padding:13px 22px}
+#hint{display:none;align-items:center;gap:8px;padding:8px 12px;background:#fff7e6;border-bottom:1px solid #f3dca8;font-size:.78rem;color:#7a5200}
+#hint span{flex:1;line-height:1.35}
+#hint .btn{padding:7px 12px;font-size:.78rem;white-space:nowrap}

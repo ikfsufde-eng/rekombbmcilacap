@@ -27,12 +27,23 @@ function switchTab(tabId) {
   loadPanel(panel);
   if (tabId === 'tab4') {
     setTimeout(aturModeDesktop, 30);
-    if (!viewer.getAttribute('src')) { $('linkInput').value = DEFAULT_URL; bukaLink(); }
+    if (!$('linkInput').value) $('linkInput').value = DEFAULT_URL;
   }
   else if (typeof tutupScan === 'function') tutupScan();
   try { localStorage.setItem('lastTab', tabId); } catch (e) {}
 }
-document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+function bukaEksternal(url) {
+  const w = window.open(url, '_blank', 'noopener');
+  if (!w) toast('Pop-up diblokir. Izinkan pop-up atau tekan tombol Buka di browser.');
+}
+document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => {
+  switchTab(b.dataset.tab);
+  // Google Sites menolak dibuka di dalam iframe, jadi halaman muka dibuka di browser (sekali per sesi)
+  if (b.dataset.tab === 'tab4') {
+    try { if (sessionStorage.getItem('homeOpened')) return; sessionStorage.setItem('homeOpened', '1'); } catch (e) {}
+    bukaEksternal(DEFAULT_URL);
+  }
+}));
 
 // ---------- Buka Link (mode desktop + zoom) ----------
 const viewer = $('viewerTab4'), wrapper = $('desktop-wrapper');
@@ -75,11 +86,15 @@ function bukaLink() {
   $('linkInput').value = url;
   $('empty-state').style.display = 'none';
   viewer.style.display = 'block';
+  $('hint').style.display = 'flex';
   aturModeDesktop(); mulaiLoading();
   viewer.src = url;
 }
 viewer.addEventListener('load', () => { if (viewer.getAttribute('src')) selesaiLoading(); });
 $('btnBuka').onclick = bukaLink;
+$('btnDefault').onclick = () => bukaEksternal(DEFAULT_URL);
+$('btnHint').onclick = () => bukaEksternal(normalisasi($('linkInput').value));
+$('hintClose').onclick = () => { $('hint').style.display = 'none'; };
 $('linkInput').addEventListener('keydown', e => { if (e.key === 'Enter') bukaLink(); });
 $('btnReload').onclick = () => { const u = normalisasi($('linkInput').value); if (u) { mulaiLoading(); viewer.src = u; } else toast('Belum ada halaman dibuka'); };
 $('btnExternal').onclick = () => { const u = normalisasi($('linkInput').value); u ? window.open(u, '_blank', 'noopener') : toast('Belum ada link'); };
