@@ -5,7 +5,7 @@ const DEFAULT_URL = 'https://sites.google.com/view/rekombbmcilacap/halaman-muka'
 const ADMIN_PIN = '123456';
 
 // Opsional: Jika Anda punya URL Google Apps Script default untuk penarikan notifikasi otomatis, isi di sini:
-const DEFAULT_NOTIF_API_URL = 'https://script.google.com/macros/s/AKfycby_gY2G8GO8Mya8AOnT83f-cjNo5-QxaWZePoqgWX8Ot7zqFQtLG8TWURe-DhACM8ZjjQ/exec';
+const DEFAULT_NOTIF_API_URL = 'https://script.google.com/macros/s/AKfycbw5UVQQShzuuWx9S8kg9M8UAoM6duJRQ9LJkR5M6A8VLhVxOuuIOYhh6bzBDI8WNeu4IA/exec';
 
 // ═══════════════════════════════════════════
 //  TOAST & AUDIO FEEDBACK
@@ -703,25 +703,35 @@ $('btnAdminPublish').onclick = async () => {
   const title = $('adm-title').value.trim();
   const body = $('adm-body').value.trim();
   const icon = $('adm-icon').value;
-  if (!title || !body) return toast('⚠️ Judul dan isi pengumuman wajib diisi!');
-
-  // 1. Tampilkan langsung di aplikasi & kirim Push Notif
-  addAppNotification(title, body, icon);
-
-  // 2. Jika ada URL API Google Apps Script, kirim juga ke server agar tampil di semua HP pengguna
   const apiUrl = localStorage.getItem(NOTIF_API_KEY) || DEFAULT_NOTIF_API_URL;
-  if (apiUrl) {
-    try {
-      await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'add_notif', title, body, icon })
-      });
-    } catch (e) {}
-  }
 
-  $('adm-title').value = '';$('adm-body').value = '';
-  toast('📢 Pengumuman berhasil diterbitkan!');
+  if (!title || !body) return toast('⚠️ Judul dan isi pengumuman wajib diisi!');
+  if (!apiUrl) return toast('⚠️ URL API belum diisi di setelan bawah!');
+
+  toast('⏳ Mengirim pengumuman ke Google Spreadsheet…');
+
+  try {
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'add_notif', title, body, icon })
+    });
+    
+    const result = await res.json();
+    if (result && result.status === 'success') {
+      // Simpan lokal setelah server sukses mencatat
+      addAppNotification(title, body, icon, result.id);
+      $('adm-title').value = '';
+      $('adm-body').value = '';
+      toast('📢 Pengumuman berhasil masuk ke Spreadsheet & terbit!');
+    } else {
+      toast('❌ Gagal simpan ke server: ' + (result.message || 'Respons tidak valid'));
+    }
+  } catch (err) {
+    console.error(err);
+    toast('❌ Gagal menghubungi Google Sheet. Periksa koneksi atau Deployment Web App Anda.');
+  }
 };
 
 $('btnSaveApiUrl').onclick = () => {
