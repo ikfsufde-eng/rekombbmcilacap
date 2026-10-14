@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuel Star W.A App</title>
+<meta name="theme-color" content="#12307a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fuel Star">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="style.css?v=10">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+<header class="app-header">
+  <img src="icon-192.png" alt="" class="brand-logo">
+  <div>
+    <h1 id="app-title">Cek Status</h1>
+    <p>Fuel W.A · Rekomendasi BBM</p>
+  </div>
+</header>
+
+<main class="app-content">
+  <section id="tab1" class="panel active">
+    <iframe data-src="https://script.google.com/macros/s/AKfycbyIkDej3qauwaYyPRwZzqoVnGDPhJKfjx1wT4sJrv-JTl0JQ2AOB-YLeKGlhLswagnD4w/exec" title="Cek Status"></iframe>
+    <div class="loader"><div class="spinner"></div><span>Memuat…</span></div>
+  </section>
+  <section id="tab2" class="panel">
+    <iframe data-src="https://script.google.com/macros/s/AKfycbzCD-wLnVHaqsszo-mnsf8pjfos6SHd1opEHRydfq3BM0kjiw6qzS74bpTaJH1w8NN0/exec" title="Data Form"></iframe>
+    <div class="loader"><div class="spinner"></div><span>Memuat…</span></div>
+  </section>
+  <section id="tab3" class="panel">
+    <iframe data-src="https://script.google.com/macros/s/AKfycbzPTtwUl6RtXX3BBHg8f4LUnGj9Vf-lzHXl7zzesbuccTw5ekpTByGPb5cEnx84egUo/exec" title="Berkas Digital"></iframe>
+    <div class="loader"><div class="spinner"></div><span>Memuat…</span></div>
+  </section>
+
+  <section id="tab4" class="panel">
+    <div class="urlbar">
+      <input type="url" id="linkInput" placeholder="Tempel atau ketik link…" inputmode="url" autocapitalize="off" autocomplete="off">
+      <button class="btn primary" id="btnBuka">Buka</button>
+      <button class="btn icon green" id="btnScan" aria-label="Scan QR"><i class="material-icons-round">qr_code_scanner</i></button>
+    </div>
+    <div class="toolbar">
+      <button class="chip" id="btnReload"><i class="material-icons-round">refresh</i>Muat ulang</button>
+      <div class="zoom">
+        <button class="chip icon" id="zoomOut" aria-label="Perkecil"><i class="material-icons-round">remove</i></button>
+        <span id="zoom-text">100%</span>
+        <button class="chip icon" id="zoomIn" aria-label="Perbesar"><i class="material-icons-round">add</i></button>
+      </div>
+      <button class="chip" id="btnExternal"><i class="material-icons-round">open_in_new</i>Browser</button>
+    </div>
+    <div id="progress"><div id="progress-bar"></div></div>
+
+    <div id="area-scanner">
+      <div class="scan-box">
+        <video id="video-scanner" autoplay playsinline muted></video>
+        <div class="scan-line"></div>
+      </div>
+      <canvas id="canvas-scanner" hidden></canvas>
+      <p>Arahkan kamera ke QR code</p>
+      <button class="btn danger" id="btnTutup">Tutup kamera</button>
+    </div>
+
+    <div id="desktop-wrapper">
+      <div id="empty-state">
+        <i class="material-icons-round">travel_explore</i>
+        <p>Masukkan link atau scan QR code untuk membuka halaman.</p>
+      </div>
+      <iframe id="viewerTab4" title="Halaman web"></iframe>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" data-tab="tab1" data-title="Cek Status"><i class="material-icons-round">search</i><span>Cek Status</span></button>
+  <button class="nav-item" data-tab="tab2" data-title="Data Form"><i class="material-icons-round">storage</i><span>Data Form</span></button>
+  <button class="nav-item" data-tab="tab3" data-title="Berkas Digital"><i class="material-icons-round">description</i><span>Berkas</span></button>
+  <button class="nav-item" data-tab="tab4" data-title="Buka Link"><i class="material-icons-round">link</i><span>Buka Link</span></button>
+</nav>
+<div id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
