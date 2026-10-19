@@ -852,7 +852,7 @@ function generatePreview() {
     text = `ISIIkan5 form permohonan rekom bbm berikut (ganti tanda xxx dengan data anda) :
 
 1. *Nama Pemilik (diisi sesuai KTP) : ${valOr('f_nama', 'xxx')}
-2. *NIK Pemilik (pastikan ditulis sesuai KTP) : ${valOr('f_nik', 'xxx')}
+2. *NIK Pemilik (ditulis sesuai KTP) : ${valOr('f_nik', 'xxx')}
 3. *Lama waktu operasi mesin dalam sehari (dalam satuan jam/hari, tulis nilainya, max 16 jam sehari, Contoh. 16) : ${valOr('f_lama_jam', 'xxx')}
 4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas kecil) : ${valOr('f_kapal', 'xxx')}
 5. *No Whatsapp aktif pemilik : ${valOr('f_wa', 'xxx')}
