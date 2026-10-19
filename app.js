@@ -933,35 +933,43 @@ function simpanKeTab2() {
   }
 
   const dataObj = { pemilik, kapal, selar, formwa: text };
+  const payload = { action: 'simpan_dari_pwa', data: dataObj };
 
-  // Encode data ke Base64 agar aman dikirim lewat URL Google Apps Script
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataObj))));
+  // Simpan cadangan di localStorage PWA juga
+  try {
+    const localData = JSON.parse(localStorage.getItem('form_wa_bbm') || '[]');
+    localData.unshift(dataObj);
+    localStorage.setItem('form_wa_bbm', JSON.stringify(localData));
+  } catch (e) {}
+
   const iframeTab2 = $('iframe_tab2');
+  switchTab('tab2'); // Pindah ke Tab 2 (otomatis memuat iframe jika belum dimuat)
 
-  if (iframeTab2) {
-    // 1. Pindahkan ke Tab 2
-    switchTab('tab2');
+  const kirimPesan = () => {
+    if (!iframeTab2 || !iframeTab2.contentWindow) return;
+    // Kirim berulang kali selama 2.5 detik agar pasti tertangkap oleh userHtmlFrame GAS
+    let count = 0;
+    const interval = setInterval(() => {
+      broadcastKeDalamIframe(iframeTab2.contentWindow, payload);
+      count++;
+      if (count >= 5) clearInterval(interval);
+    }, 500);
+  };
 
-    // 2. Muat URL GAS Tab 2 dengan parameter titipan data baru (?pwa_add=...)
-    const panelTab2 = $('tab2');
-    panelTab2.querySelector('.loader')?.classList.remove('done');
-    iframeTab2.removeAttribute('data-src');
-    iframeTab2.src = `${TAB2_BASE_URL}?pwa_add=${encodeURIComponent(encoded)}&t=${Date.now()}`;
-    iframeTab2.onload = () => panelTab2.querySelector('.loader')?.classList.add('done');
-
-    // 3. Kirim juga via rekursif postMessage ke seluruh sub-frame
-    if (iframeTab2.contentWindow) {
-      broadcastKeDalamIframe(iframeTab2.contentWindow, {
-        action: 'simpan_dari_pwa',
-        data: dataObj
-      });
-    }
-
-    toast('💾 Menyimpan & menyinkronkan ke Database Tab Data Form…');
-    clearFormAll();
+  // Jika iframe baru saja dimuat pertama kali, tunggu selesai loading baru kirim
+  if (!iframeTab2.getAttribute('src')) {
+    iframeTab2.addEventListener('load', kirimPesan, { once: true });
+  } else {
+    kirimPesan();
   }
-}
 
+  // Tetap kirim juga via parameter URL sebagai jalur cadangan kedua
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataObj))));
+  iframeTab2.src = `${TAB2_BASE_URL}?pwa_add=${encodeURIComponent(encoded)}&t=${Date.now()}`;
+
+  toast('✅ Data dikirim ke Tab Data Form!');
+  ;
+}
 document.addEventListener('DOMContentLoaded', () => {
   generatePreview();
 });
