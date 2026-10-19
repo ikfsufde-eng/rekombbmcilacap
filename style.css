@@ -985,3 +985,18 @@ body {
   resize: vertical;
   line-height: 1.5;
 }
+
+
+/* Gaya untuk Validasi Error Form Native */
+.err-msg {
+  color: var(--red);
+  font-size: 0.65rem;
+  margin-left: 6px;
+  font-weight: 600;
+  display: none; /* Disembunyikan secara default */
+}
+.input-error {
+  border-color: var(--red) !important;
+  background-color: #fff1f2 !important;
+  color: var(--red) !important;
+}
