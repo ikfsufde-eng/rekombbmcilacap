@@ -1,4 +1,4 @@
-const CACHE = 'fuelstar-v6';
+const CACHE = 'fuelstar-v7';
 const ASSETS = [
   './',
   'index.html',
