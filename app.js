@@ -773,8 +773,11 @@ switchTab(last);
 // ═══════════════════════════════════════════
 //  FORM PENGAJUAN GENERATOR & VALIDASI
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  FORM PENGAJUAN (NATIVE PWA)
+// ═══════════════════════════════════════════
 let currentBBM = 'pertalite';
-let formIsValid = true; // Status apakah semua data benar
+let formIsValid = true;
 
 function switchBBM(type) {
   currentBBM = type;
@@ -787,9 +790,106 @@ function switchBBM(type) {
     ? '12. Rencana Lama Hari (1 Bulan) <span id="err_lama_hari" class="err-msg"></span>' 
     : '12. Rencana Lama Hari (1 Trip) <span id="err_lama_hari" class="err-msg"></span>';
   
-  cekValidasi();
+  cekValidasi(); generatePreview();
+}
+
+function cekValidasi() {
+  formIsValid = true;
+  const setError = (id, msg) => { $(id).classList.add('input-error'); let e =$('err_' + id.replace('f_','')); if(e){ e.textContent=msg; e.style.display='inline'; } formIsValid = false; };
+  const clearError = (id) => { $(id).classList.remove('input-error'); let e =$('err_' + id.replace('f_','')); if(e) e.style.display='none'; };
+
+  let nik = $('f_nik').value.trim();
+  if (nik && nik.length !== 16) setError('f_nik', '(Wajib 16 Digit!)'); else clearError('f_nik');
+
+  let jam = parseInt($('f_lama_jam').value);
+  if (jam && jam > 16) setError('f_lama_jam', '(Maksimal 16 Jam!)'); else clearError('f_lama_jam');
+
+  if (currentBBM === 'solar') {
+    let bkp = $('f_bkp').value.trim();
+    if (bkp && bkp.length !== 5) setError('f_bkp', '(Wajib 5 Digit!)'); else clearError('f_bkp');
+  }
+
+  ['f_wa', 'f_mesin', 'f_sisa_solar', 'f_volume', 'f_gt', 'f_tujuan_p', 'f_lama_hari'].forEach(id => {
+    let val = $(id).value.trim();
+    if (val && parseFloat(val) < 0) setError(id, '(Tidak Boleh Minus!)');
+    else if ($(id).classList.contains('input-error')) clearError(id);
+  });
+  return formIsValid;
+}
+
+function generatePreview() {
+  const getVal = (id) => $(id).value.trim() || 'xxx';
+  let text = '';
+
+  if (currentBBM === 'pertalite') {
+    text = `ISIIkan5 form permohonan rekom bbm berikut :\n\n1. *Nama Pemilik (diisi sesuai KTP) : ${getVal('f_nama')}\n2. *NIK Pemilik (pastikan ditulis sesuai KTP) : ${getVal('f_nik')}\n3. *Lama waktu operasi mesin dalam sehari (dalam satuan jam/hari) : ${getVal('f_lama_jam')}\n4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas kecil) : ${getVal('f_kapal')}\n5. *No Whatsapp aktif pemilik : ${getVal('f_wa')}\n6. *Daya Mesin Kapal (sesuai pas kecil) : ${getVal('f_mesin')}\n7. *Alamat Pemilik : ${getVal('f_alamat')}\n8. *Volume Permohonan perbulan (dalam satuan Liter) : ${getVal('f_volume')}\n9. *Tonase Kapal GT Kapal (sesuai pas kecil) : ${getVal('f_gt')}\n10. *Tujuan pengisian pertalite : ${getVal('f_tujuan_p')}\n11. *Nomor registrasi kapal Tanda selar (sesuai pas kecil) : JTA no ${getVal('f_selar')}\n12. *Rencana Lama Hari Operasi 1 bulan : ${getVal('f_lama_hari')}\n13. *Tanggal/Permohonan : ${getVal('f_jenis')}`;
+  } else {
+    text = `ISIIkan6 form permohonan rekom bbm berikut :\n\n1. *Nama Pemilik (diisi sesuai KTP) : ${getVal('f_nama')}\n2. *NIK Pemilik (pastikan ditulis sesuai ktp) : ${getVal('f_nik')}\n3. *Lama waktu operasi mesin dalam sehari (dalam satuan jam/hari) : ${getVal('f_lama_jam')}\n4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas besar) : ${getVal('f_kapal')}\n5. *Nomor Whatsapp aktif : ${getVal('f_wa')}\n6. *Daya Mesin Kapal (sesuai pas besar) : ${getVal('f_mesin')}\n7. *Sisa Solar (dalam satuan Liter) : ${getVal('f_sisa_solar')}\n8. *Volume Permohonan (dalam satuan Liter) : ${getVal('f_volume')}\n9. *Tonase Kapal GT Kapal (sesuai pas besar) : ${getVal('f_gt')}\n10. *Tujuan pengisian solar : ${getVal('f_tujuan_s')}\n11. *Nomor registrasi kapal BKP (5 digit terakhir) : ${getVal('f_bkp')}\n12. *Rencana Lama Hari Operasi dalam 1 Trip : ${getVal('f_lama_hari')}\n13. *Permohonan : ${getVal('f_jenis')}`;
+  }
+  $('result-preview').value = text;
+}
+
+function clearFormAll() {
+  ['f_nama','f_nik','f_lama_jam','f_kapal','f_wa','f_mesin','f_alamat','f_sisa_solar','f_volume','f_gt','f_tujuan_p','f_selar','f_bkp','f_lama_hari'].forEach(id => {
+    $(id).value = '';$(id).classList.remove('input-error');
+  });
+  document.querySelectorAll('.err-msg').forEach(el => el.style.display = 'none');
   generatePreview();
 }
+
+function copyFormText() {
+  if (!cekValidasi()) return toast('⚠️ Tolong perbaiki kotak merah sebelum menyalin data!');
+  const text = $('result-preview').value;
+  if (!text || text.includes('xxx')) toast('⚠️ Ada data kosong (xxx).');
+  navigator.clipboard.writeText(text).then(() => toast('✅ Teks disalin!'));
+}
+
+function sendFormWA() {
+  if (!cekValidasi()) return toast('⚠️ Tolong perbaiki kotak merah sebelum mengirim!');
+  const text = $('result-preview').value;
+  if (!text || text.includes('xxx')) toast('⚠️ Lengkapi data (xxx) sebelum dikirim.');
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+// ================= JEMBATAN INTEGRASI KE TAB DATA FORM =================
+function simpanKeTab2() {
+  if (!cekValidasi()) return toast('⚠️ Perbaiki kotak merah sebelum menyimpan!');
+  let text = $('result-preview').value;
+  if (!text || text.includes('xxx')) return toast('⚠️ Lengkapi data (xxx) sebelum menyimpan');
+  
+  let pemilik = $('f_nama').value.trim();
+  let kapal = $('f_kapal').value.trim();
+  let selar = currentBBM === 'pertalite' ? $('f_selar').value.trim() :$('f_bkp').value.trim();
+
+  // Mencari iframe Tab 2
+  let iframeTab2 = document.getElementById('iframe_tab2');
+  if(iframeTab2 && iframeTab2.contentWindow) {
+    
+    // Melempar pesan menembus batas domain ke Google Script
+    iframeTab2.contentWindow.postMessage({
+      action: 'simpan_dari_pwa',
+      data: {
+        pemilik: pemilik,
+        kapal: kapal,
+        selar: selar,
+        formwa: text
+      }
+    }, '*');
+    
+    toast("✅ Data dikirim ke Tab Data Form!");
+    clearFormAll();
+    
+    // Opsional: Langsung pindah layar ke Tab 2 agar pengguna bisa melihat hasilnya
+    switchTab('tab2');
+    
+  } else {
+    toast("⚠️ Gagal: Buka Tab Data Form minimal 1x agar sistem terhubung.");
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  generatePreview();
+});
 
 function cekValidasi() {
   formIsValid = true; // Anggap benar dulu
