@@ -63,10 +63,83 @@
   </section>
 
   <!-- TAB TENGAH (TOMBOL BULAT BESAR): PENGAJUAN -->
-  <section id="tab-pengajuan" class="panel">
-    <!-- Ubah URL data-src di bawah ini jika memiliki link khusus form Pengajuan baru -->
-    <iframe data-src="https://script.google.com/macros/s/AKfycbzCD-wLnVHaqsszo-mnsf8pjfos6SHd1opEHRydfq3BM0kjiw6qzS74bpTaJH1w8NN0/exec" title="Pengajuan Rekomendasi BBM"></iframe>
-    <div class="loader"><div class="spinner"></div><span>Memuat Formulir Pengajuan…</span></div>
+  <section id="tab-pengajuan" class="panel" style="overflow-y: auto; background: var(--bg); padding: 16px;">
+    <div class="form-card">
+      <div class="form-header">
+        <h2><i class="material-icons-round">edit_document</i> Form Rekomendasi BBM</h2>
+        <p>Isi data untuk menghasilkan format pesan otomatis.</p>
+      </div>
+
+      <div class="bbm-tabs">
+        <button class="bbm-tab active" id="tab-pertalite" onclick="switchBBM('pertalite')">Pertalite</button>
+        <button class="bbm-tab" id="tab-solar" onclick="switchBBM('solar')">Solar</button>
+      </div>
+
+      <div class="form-body">
+        <!-- Input Umum -->
+        <div class="form-group"><label>1. Nama Pemilik (Sesuai KTP)</label><input type="text" id="f_nama" placeholder="Contoh: Dimas Satrio" oninput="generatePreview()"></div>
+        <div class="form-group"><label>2. NIK Pemilik</label><input type="number" id="f_nik" placeholder="16 Digit NIK" oninput="generatePreview()"></div>
+        <div class="form-group"><label>3. Lama Operasi (Jam/Hari, max 16)</label><input type="number" id="f_lama_jam" placeholder="Contoh: 16" oninput="generatePreview()"></div>
+        <div class="form-group"><label>4. Nama Kapal</label><input type="text" id="f_kapal" placeholder="Sesuai pas kapal" oninput="generatePreview()"></div>
+        <div class="form-group"><label>5. No WhatsApp Aktif</label><input type="number" id="f_wa" placeholder="Contoh: 08123456789" oninput="generatePreview()"></div>
+        <div class="form-group"><label>6. Daya Mesin Kapal</label><input type="text" id="f_mesin" placeholder="Contoh: 5.5 atau 180" oninput="generatePreview()"></div>
+        
+        <!-- Khusus Pertalite -->
+        <div class="form-group pertalite-only"><label>7. Alamat Pemilik</label><input type="text" id="f_alamat" placeholder="Ds/Kel ..., Kec ..." oninput="generatePreview()"></div>
+        
+        <!-- Khusus Solar -->
+        <div class="form-group solar-only" style="display: none;"><label>7. Sisa Solar (Liter)</label><input type="number" id="f_sisa_solar" placeholder="Contoh: 500" oninput="generatePreview()"></div>
+
+        <!-- Input Umum Lanjutan -->
+        <div class="form-group"><label>8. Volume Permohonan (Liter)</label><input type="number" id="f_volume" placeholder="Contoh: 600 atau 12000" oninput="generatePreview()"></div>
+        <div class="form-group"><label>9. Tonase Kapal (GT)</label><input type="number" id="f_gt" placeholder="Contoh: 1 atau 29" oninput="generatePreview()"></div>
+        
+        <!-- Tujuan Pengisian -->
+        <div class="form-group pertalite-only"><label>10. Tujuan SPBU (Pertalite)</label><input type="number" id="f_tujuan_p" placeholder="Contoh: 4453201" oninput="generatePreview()"></div>
+        <div class="form-group solar-only" style="display: none;"><label>10. Tujuan Pengisian (Solar)</label>
+          <select id="f_tujuan_s" onchange="generatePreview()">
+            <option value="">-- Pilih --</option>
+            <option value="PPSC">PPSC</option>
+            <option value="D3">D3</option>
+            <option value="SENTOLOKAWAT">SENTOLOKAWAT</option>
+          </select>
+        </div>
+
+        <!-- Registrasi -->
+        <div class="form-group pertalite-only"><label>11. Tanda Selar (Sesuai pas kecil)</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span>JTA no</span><input type="text" id="f_selar" style="flex:1;" placeholder="..." oninput="generatePreview()">
+          </div>
+        </div>
+        <div class="form-group solar-only" style="display: none;"><label>11. Nomor BKP (5 Digit Terakhir)</label><input type="number" id="f_bkp" placeholder="Contoh: 12345" oninput="generatePreview()"></div>
+
+        <!-- Lama Hari & Permohonan -->
+        <div class="form-group"><label id="label_hari">12. Rencana Lama Hari (1 Bulan)</label><input type="number" id="f_lama_hari" placeholder="Contoh: 20" oninput="generatePreview()"></div>
+        <div class="form-group"><label>13. Jenis Permohonan</label>
+          <select id="f_jenis" onchange="generatePreview()">
+            <option value="BARU">BARU</option>
+            <option value="PERPANJANGAN">PERPANJANGAN / PERPANJANG</option>
+            <option value="REVISI">REVISI</option>
+            <option value="TAMBAH">TAMBAH</option>
+            <option value="REMINDER">REMINDER</option>
+            <option value="GABUNG" class="solar-only" style="display:none;">GABUNG</option>
+            <option value="BATAL" class="solar-only" style="display:none;">BATAL</option>
+            <option value="PEMBARUAN" class="solar-only" style="display:none;">PEMBARUAN</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="preview-area">
+        <div class="preview-header">
+          <strong>Preview Hasil:</strong>
+          <div style="display:flex; gap:6px;">
+            <button class="btn secondary sm" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
+            <button class="btn primary sm" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
+          </div>
+        </div>
+        <textarea id="result-preview" readonly placeholder="Isi form di atas untuk melihat hasil di sini..."></textarea>
+      </div>
+    </div>
   </section>
 
   <!-- TAB 3: BERKAS DIGITAL -->
