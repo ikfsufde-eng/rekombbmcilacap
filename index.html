@@ -69,109 +69,157 @@
     <div class="form-card">
       <div class="form-header">
         <h2><i class="material-icons-round">edit_document</i> Form Rekomendasi BBM</h2>
-        <p>Isi data untuk menghasilkan format pesan otomatis.</p>
+        <p id="form-subtitle">ISIIkan5 form permohonan rekom bbm berikut (ganti tanda xxx dengan data anda) :</p>
       </div>
 
       <div class="bbm-tabs">
-        <button class="bbm-tab active" id="tab-pertalite" onclick="switchBBM('pertalite')">Pertalite</button>
-        <button class="bbm-tab" id="tab-solar" onclick="switchBBM('solar')">Solar</button>
+        <button class="bbm-tab active" id="tab-pertalite" type="button" onclick="switchBBM('pertalite')">⛽ PERTALITE (Pas Kecil)</button>
+        <button class="bbm-tab" id="tab-solar" type="button" onclick="switchBBM('solar')">🚢 SOLAR (Pas Besar)</button>
       </div>
 
       <div class="form-body">
-        <!-- Input Umum -->
-        <div class="form-group"><label>1. Nama Pemilik (Sesuai KTP)</label>
-          <input type="text" id="f_nama" placeholder="Contoh: Dimas Satrio" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
-        </div>
-        <div class="form-group"><label>2. NIK Pemilik <span id="err_nik" class="err-msg"></span></label>
-          <input type="number" id="f_nik" placeholder="Wajib 16 digit angka" oninput="cekValidasi(); generatePreview()">
-        </div>
-        <div class="form-group"><label>3. Lama Operasi (Jam/Hari) <span id="err_jam" class="err-msg"></span></label>
-          <input type="number" id="f_lama_jam" placeholder="Maksimal 16" max="16" oninput="cekValidasi(); generatePreview()">
-        </div>
-        <div class="form-group"><label>4. Nama Kapal</label>
-          <input type="text" id="f_kapal" placeholder="Sesuai pas kapal" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
-        </div>
-        <div class="form-group"><label>5. No WhatsApp Aktif <span id="err_wa" class="err-msg"></span></label>
-          <input type="number" id="f_wa" placeholder="Contoh: 08123456789" oninput="cekValidasi(); generatePreview()">
-        </div>
-        <div class="form-group"><label>6. Daya Mesin Kapal <span id="err_mesin" class="err-msg"></span></label>
-          <input type="number" step="0.1" id="f_mesin" placeholder="Angka saja, cth: 5.5" oninput="cekValidasi(); generatePreview()">
-        </div>
-        
-        <!-- Khusus Pertalite -->
-        <div class="form-group pertalite-only"><label>7. Alamat Pemilik</label>
-          <input type="text" id="f_alamat" placeholder="Ds/Kel ..., Kec ..." oninput="cekValidasi(); generatePreview()">
-        </div>
-        
-        <!-- Khusus Solar -->
-        <div class="form-group solar-only" style="display: none;"><label>7. Sisa Solar (Liter) <span id="err_sisa_solar" class="err-msg"></span></label>
-          <input type="number" id="f_sisa_solar" placeholder="Angka saja, cth: 500" oninput="cekValidasi(); generatePreview()">
+        <!-- 1. Nama Pemilik -->
+        <div class="form-group">
+          <label>1. *Nama Pemilik (diisi sesuai KTP) :</label>
+          <input type="text" id="f_nama" placeholder="Tulis nama sesuai KTP" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
         </div>
 
-        <!-- Input Umum Lanjutan -->
-        <div class="form-group"><label>8. Volume Permohonan (Liter) <span id="err_volume" class="err-msg"></span></label>
-          <input type="number" id="f_volume" placeholder="Angka saja, cth: 600" oninput="cekValidasi(); generatePreview()">
+        <!-- 2. NIK Pemilik -->
+        <div class="form-group">
+          <label id="lbl_nik">2. *NIK Pemilik (pastikan ditulis sesuai KTP) : <span id="err_nik" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" maxlength="16" id="f_nik" placeholder="16 digit NIK sesuai KTP" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
         </div>
-        <div class="form-group"><label>9. Tonase Kapal (GT) <span id="err_gt" class="err-msg"></span></label>
-          <input type="number" id="f_gt" placeholder="Angka saja, cth: 1" oninput="cekValidasi(); generatePreview()">
+
+        <!-- 3. Lama waktu operasi -->
+        <div class="form-group">
+          <label>3. *Lama waktu operasi mesin dalam sehari (dalam satuan jam/hari, tulis nilainya, max 16 jam sehari, Contoh. 16) : <span id="err_lama_jam" class="err-msg"></span></label>
+          <input type="number" id="f_lama_jam" min="1" max="16" placeholder="Contoh: 16" oninput="cekValidasi(); generatePreview()">
+        </div>
+
+        <!-- 4. Nama Kapal -->
+        <div class="form-group">
+          <label id="lbl_kapal">4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas kecil) :</label>
+          <input type="text" id="f_kapal" placeholder="Tulis nama kapalnya saja" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
+        </div>
+
+        <!-- 5. Nomor Whatsapp -->
+        <div class="form-group">
+          <label id="lbl_wa">5. *No Whatsapp aktif pemilik : <span id="err_wa" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" id="f_wa" placeholder="Contoh: 08123456789" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
+        </div>
+
+        <!-- 6. Daya Mesin Kapal -->
+        <div class="form-group">
+          <label id="lbl_mesin">6. *Daya Mesin Kapal (sesuai pas kecil, tulis nilainya saja, Contoh penulisan. 5.5 ) : <span id="err_mesin" class="err-msg"></span></label>
+          <input type="text" inputmode="decimal" id="f_mesin" placeholder="Contoh penulisan: 5.5" oninput="this.value=this.value.replace(/[^0-9.]/g,''); cekValidasi(); generatePreview()">
         </div>
         
-        <!-- Tujuan Pengisian -->
-        <div class="form-group pertalite-only"><label>10. Tujuan SPBU (Pertalite) <span id="err_tujuan_p" class="err-msg"></span></label>
-          <input type="number" id="f_tujuan_p" placeholder="Angka saja, cth: 4453201" oninput="cekValidasi(); generatePreview()">
+        <!-- 7. KHUSUS PERTALITE: Alamat Pemilik (Ds/Kel & Kec) -->
+        <div class="form-group pertalite-only">
+          <label>7. *Alamat Pemilik : Ds/Kel xxx , Kec xxx , Cilacap</label>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <input type="text" id="f_desa" placeholder="Nama Ds/Kel..." oninput="cekValidasi(); generatePreview()">
+            <input type="text" id="f_kec" placeholder="Nama Kecamatan..." oninput="cekValidasi(); generatePreview()">
+          </div>
         </div>
-        <div class="form-group solar-only" style="display: none;"><label>10. Tujuan Pengisian (Solar)</label>
+        
+        <!-- 7. KHUSUS SOLAR: Sisa Solar -->
+        <div class="form-group solar-only" style="display: none;">
+          <label>7. *Sisa Solar (dalam satuan Liter, tulis nilainya saja, Contoh penulisan. 500) : <span id="err_sisa_solar" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" id="f_sisa_solar" placeholder="Contoh penulisan: 500" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
+        </div>
+
+        <!-- 8. Volume Permohonan -->
+        <div class="form-group">
+          <label id="lbl_volume">8. *Volume Permohonan perbulan (dalam satuan Liter, tulis nilainya saja, Contoh penulisan 600 ) : <span id="err_volume" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" id="f_volume" placeholder="Contoh penulisan: 600" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
+        </div>
+
+        <!-- 9. Tonase Kapal GT -->
+        <div class="form-group">
+          <label id="lbl_gt">9. *Tonase Kapal GT Kapal (sesuai pas kecil, Contoh penulisan. 1) : <span id="err_gt" class="err-msg"></span></label>
+          <input type="text" inputmode="decimal" id="f_gt" placeholder="Contoh penulisan: 1" oninput="this.value=this.value.replace(/[^0-9.]/g,''); cekValidasi(); generatePreview()">
+        </div>
+        
+        <!-- 10. Tujuan Pengisian PERTALITE -->
+        <div class="form-group pertalite-only">
+          <label>10. *Tujuan pengisian pertalite (tulis nomor spbu nya, Contoh 4453201) : <span id="err_tujuan_p" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" id="f_tujuan_p" placeholder="Contoh: 4453201" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
+        </div>
+
+        <!-- 10. Tujuan Pengisian SOLAR -->
+        <div class="form-group solar-only" style="display: none;">
+          <label>10. *Tujuan pengisian solar (Pilih salah satu dengan hapus yang tidak perlu ) :</label>
           <select id="f_tujuan_s" onchange="generatePreview()">
-            <option value="">-- Pilih --</option>
             <option value="PPSC">PPSC</option>
             <option value="D3">D3</option>
             <option value="SENTOLOKAWAT">SENTOLOKAWAT</option>
           </select>
         </div>
 
-        <!-- Registrasi -->
-        <div class="form-group pertalite-only"><label>11. Tanda Selar (Sesuai pas kecil)</label>
+        <!-- 11. Registrasi PERTALITE: Tanda Selar -->
+        <div class="form-group pertalite-only">
+          <label>11. *Nomor registrasi kapal Tanda selar (sesuai pas kecil) : JTA no xxx</label>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span style="font-size:0.8rem; font-weight:700;">JTA no</span>
-            <input type="text" id="f_selar" style="flex:1;" placeholder="..." oninput="cekValidasi(); generatePreview()">
+            <span style="font-size:0.84rem; font-weight:700; color:var(--navy); white-space:nowrap;">JTA no</span>
+            <input type="text" id="f_selar" style="flex:1;" placeholder="Isi nomor tanda selar..." oninput="cekValidasi(); generatePreview()">
           </div>
         </div>
-        <div class="form-group solar-only" style="display: none;"><label>11. Nomor BKP (5 Digit Terakhir) <span id="err_bkp" class="err-msg"></span></label>
-          <input type="number" id="f_bkp" placeholder="Wajib 5 digit angka" oninput="cekValidasi(); generatePreview()">
+
+        <!-- 11. Registrasi SOLAR: BKP 5 Digit -->
+        <div class="form-group solar-only" style="display: none;">
+          <label>11. *Nomor registrasi kapal BKP (5 digit terakhir) : <span id="err_bkp" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" maxlength="5" id="f_bkp" placeholder="Contoh: 12345 (Wajib 5 digit)" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
         </div>
 
-        <!-- Lama Hari & Permohonan -->
-        <div class="form-group"><label id="label_hari">12. Rencana Lama Hari (1 Bulan) <span id="err_lama_hari" class="err-msg"></span></label>
-          <input type="number" id="f_lama_hari" placeholder="Angka saja, cth: 20" oninput="cekValidasi(); generatePreview()">
+        <!-- 12. Rencana Lama Hari Operasi -->
+        <div class="form-group">
+          <label id="lbl_hari">12. *Rencana Lama Hari Operasi 1 bulan : <span id="err_lama_hari" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" id="f_lama_hari" placeholder="Tulis angkanya saja" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
         </div>
-        <div class="form-group"><label>13. Jenis Permohonan</label>
-          <select id="f_jenis" onchange="generatePreview()">
+
+        <!-- 13. Jenis Permohonan -->
+        <div class="form-group pertalite-only">
+          <label>13. *Tanggl : BARU/PERPANJANGAN/REVISI/TAMBAH/REMINDER (pilih, hapus yg tak perlu)</label>
+          <select id="f_jenis_p" onchange="generatePreview()">
             <option value="BARU">BARU</option>
-            <option value="PERPANJANGAN">PERPANJANGAN / PERPANJANG</option>
+            <option value="PERPANJANGAN">PERPANJANGAN</option>
             <option value="REVISI">REVISI</option>
             <option value="TAMBAH">TAMBAH</option>
             <option value="REMINDER">REMINDER</option>
-            <option value="GABUNG" class="solar-only" style="display:none;">GABUNG</option>
-            <option value="BATAL" class="solar-only" style="display:none;">BATAL</option>
-            <option value="PEMBARUAN" class="solar-only" style="display:none;">PEMBARUAN</option>
+          </select>
+        </div>
+
+        <div class="form-group solar-only" style="display: none;">
+          <label>13. *Permohonan : BARU/REVISI/BATAL/PERPANJANG/GABUNG/TAMBAH/PEMBARUAN/REMINDER</label>
+          <select id="f_jenis_s" onchange="generatePreview()">
+            <option value="BARU">BARU</option>
+            <option value="REVISI">REVISI</option>
+            <option value="BATAL">BATAL</option>
+            <option value="PERPANJANG">PERPANJANG</option>
+            <option value="GABUNG">GABUNG</option>
+            <option value="TAMBAH">TAMBAH</option>
+            <option value="PEMBARUAN">PEMBARUAN</option>
+            <option value="REMINDER">REMINDER</option>
           </select>
         </div>
       </div>
 
+      <!-- PREVIEW & TOMBOL AKSI -->
       <div class="preview-area">
         <div class="preview-header">
-          <strong>Preview Hasil:</strong>
+          <strong>Preview Hasil Isian (Sama Plek Template):</strong>
           <div style="display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;">
-            <button class="btn accent sm" onclick="simpanKeTab2()"><i class="material-icons-round" style="font-size:16px;">save</i> Simpan ke Database</button>
-            <button class="btn secondary sm" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
-            <button class="btn primary sm" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
+            <button class="btn accent sm" type="button" onclick="simpanKeTab2()"><i class="material-icons-round" style="font-size:16px;">save</i> Simpan ke Database</button>
+            <button class="btn secondary sm" type="button" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
+            <button class="btn primary sm" type="button" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
           </div>
         </div>
-        <textarea id="result-preview" readonly placeholder="Isi form di atas untuk melihat hasil di sini..."></textarea>
+        <textarea id="result-preview" readonly style="height: 290px;"></textarea>
       </div>
       
       <div style="margin-top: 12px;">
-        <button class="btn secondary" style="width: 100%;" onclick="clearFormAll()"><i class="material-icons-round">refresh</i> Reset Form</button>
+        <button class="btn secondary" type="button" style="width: 100%;" onclick="clearFormAll()"><i class="material-icons-round">refresh</i> Reset Form Isian</button>
       </div>
     </div>
   </section>
