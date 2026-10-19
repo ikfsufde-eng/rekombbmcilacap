@@ -77,25 +77,47 @@
 
       <div class="form-body">
         <!-- Input Umum -->
-        <div class="form-group"><label>1. Nama Pemilik (Sesuai KTP)</label><input type="text" id="f_nama" placeholder="Contoh: Dimas Satrio" oninput="generatePreview()"></div>
-        <div class="form-group"><label>2. NIK Pemilik</label><input type="number" id="f_nik" placeholder="16 Digit NIK" oninput="generatePreview()"></div>
-        <div class="form-group"><label>3. Lama Operasi (Jam/Hari, max 16)</label><input type="number" id="f_lama_jam" placeholder="Contoh: 16" oninput="generatePreview()"></div>
-        <div class="form-group"><label>4. Nama Kapal</label><input type="text" id="f_kapal" placeholder="Sesuai pas kapal" oninput="generatePreview()"></div>
-        <div class="form-group"><label>5. No WhatsApp Aktif</label><input type="number" id="f_wa" placeholder="Contoh: 08123456789" oninput="generatePreview()"></div>
-        <div class="form-group"><label>6. Daya Mesin Kapal</label><input type="text" id="f_mesin" placeholder="Contoh: 5.5 atau 180" oninput="generatePreview()"></div>
+        <div class="form-group"><label>1. Nama Pemilik (Sesuai KTP)</label>
+          <input type="text" id="f_nama" placeholder="Contoh: Dimas Satrio" oninput="cekValidasi(); generatePreview()">
+        </div>
+        <div class="form-group"><label>2. NIK Pemilik <span id="err_nik" class="err-msg"></span></label>
+          <input type="number" id="f_nik" placeholder="Wajib 16 digit angka" oninput="cekValidasi(); generatePreview()">
+        </div>
+        <div class="form-group"><label>3. Lama Operasi (Jam/Hari) <span id="err_jam" class="err-msg"></span></label>
+          <input type="number" id="f_lama_jam" placeholder="Maksimal 16" max="16" oninput="cekValidasi(); generatePreview()">
+        </div>
+        <div class="form-group"><label>4. Nama Kapal</label>
+          <input type="text" id="f_kapal" placeholder="Sesuai pas kapal" oninput="cekValidasi(); generatePreview()">
+        </div>
+        <div class="form-group"><label>5. No WhatsApp Aktif <span id="err_wa" class="err-msg"></span></label>
+          <input type="number" id="f_wa" placeholder="Contoh: 08123456789" oninput="cekValidasi(); generatePreview()">
+        </div>
+        <div class="form-group"><label>6. Daya Mesin Kapal <span id="err_mesin" class="err-msg"></span></label>
+          <input type="number" step="0.1" id="f_mesin" placeholder="Angka saja, cth: 5.5" oninput="cekValidasi(); generatePreview()">
+        </div>
         
         <!-- Khusus Pertalite -->
-        <div class="form-group pertalite-only"><label>7. Alamat Pemilik</label><input type="text" id="f_alamat" placeholder="Ds/Kel ..., Kec ..." oninput="generatePreview()"></div>
+        <div class="form-group pertalite-only"><label>7. Alamat Pemilik</label>
+          <input type="text" id="f_alamat" placeholder="Ds/Kel ..., Kec ..." oninput="cekValidasi(); generatePreview()">
+        </div>
         
         <!-- Khusus Solar -->
-        <div class="form-group solar-only" style="display: none;"><label>7. Sisa Solar (Liter)</label><input type="number" id="f_sisa_solar" placeholder="Contoh: 500" oninput="generatePreview()"></div>
+        <div class="form-group solar-only" style="display: none;"><label>7. Sisa Solar (Liter) <span id="err_sisa_solar" class="err-msg"></span></label>
+          <input type="number" id="f_sisa_solar" placeholder="Angka saja, cth: 500" oninput="cekValidasi(); generatePreview()">
+        </div>
 
         <!-- Input Umum Lanjutan -->
-        <div class="form-group"><label>8. Volume Permohonan (Liter)</label><input type="number" id="f_volume" placeholder="Contoh: 600 atau 12000" oninput="generatePreview()"></div>
-        <div class="form-group"><label>9. Tonase Kapal (GT)</label><input type="number" id="f_gt" placeholder="Contoh: 1 atau 29" oninput="generatePreview()"></div>
+        <div class="form-group"><label>8. Volume Permohonan (Liter) <span id="err_volume" class="err-msg"></span></label>
+          <input type="number" id="f_volume" placeholder="Angka saja, cth: 600" oninput="cekValidasi(); generatePreview()">
+        </div>
+        <div class="form-group"><label>9. Tonase Kapal (GT) <span id="err_gt" class="err-msg"></span></label>
+          <input type="number" id="f_gt" placeholder="Angka saja, cth: 1" oninput="cekValidasi(); generatePreview()">
+        </div>
         
         <!-- Tujuan Pengisian -->
-        <div class="form-group pertalite-only"><label>10. Tujuan SPBU (Pertalite)</label><input type="number" id="f_tujuan_p" placeholder="Contoh: 4453201" oninput="generatePreview()"></div>
+        <div class="form-group pertalite-only"><label>10. Tujuan SPBU (Pertalite) <span id="err_tujuan_p" class="err-msg"></span></label>
+          <input type="number" id="f_tujuan_p" placeholder="Angka saja, cth: 4453201" oninput="cekValidasi(); generatePreview()">
+        </div>
         <div class="form-group solar-only" style="display: none;"><label>10. Tujuan Pengisian (Solar)</label>
           <select id="f_tujuan_s" onchange="generatePreview()">
             <option value="">-- Pilih --</option>
@@ -108,13 +130,18 @@
         <!-- Registrasi -->
         <div class="form-group pertalite-only"><label>11. Tanda Selar (Sesuai pas kecil)</label>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span>JTA no</span><input type="text" id="f_selar" style="flex:1;" placeholder="..." oninput="generatePreview()">
+            <span style="font-size:0.8rem; font-weight:700;">JTA no</span>
+            <input type="text" id="f_selar" style="flex:1;" placeholder="..." oninput="cekValidasi(); generatePreview()">
           </div>
         </div>
-        <div class="form-group solar-only" style="display: none;"><label>11. Nomor BKP (5 Digit Terakhir)</label><input type="number" id="f_bkp" placeholder="Contoh: 12345" oninput="generatePreview()"></div>
+        <div class="form-group solar-only" style="display: none;"><label>11. Nomor BKP (5 Digit Terakhir) <span id="err_bkp" class="err-msg"></span></label>
+          <input type="number" id="f_bkp" placeholder="Wajib 5 digit angka" oninput="cekValidasi(); generatePreview()">
+        </div>
 
         <!-- Lama Hari & Permohonan -->
-        <div class="form-group"><label id="label_hari">12. Rencana Lama Hari (1 Bulan)</label><input type="number" id="f_lama_hari" placeholder="Contoh: 20" oninput="generatePreview()"></div>
+        <div class="form-group"><label id="label_hari">12. Rencana Lama Hari (1 Bulan) <span id="err_lama_hari" class="err-msg"></span></label>
+          <input type="number" id="f_lama_hari" placeholder="Angka saja, cth: 20" oninput="cekValidasi(); generatePreview()">
+        </div>
         <div class="form-group"><label>13. Jenis Permohonan</label>
           <select id="f_jenis" onchange="generatePreview()">
             <option value="BARU">BARU</option>
@@ -133,8 +160,8 @@
         <div class="preview-header">
           <strong>Preview Hasil:</strong>
           <div style="display:flex; gap:6px;">
-            <button class="btn secondary sm" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
-            <button class="btn primary sm" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
+            <button class="btn secondary sm" id="btnSalin" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
+            <button class="btn primary sm" id="btnKirimWA" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
           </div>
         </div>
         <textarea id="result-preview" readonly placeholder="Isi form di atas untuk melihat hasil di sini..."></textarea>
