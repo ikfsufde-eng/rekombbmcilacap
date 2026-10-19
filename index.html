@@ -57,8 +57,10 @@
   </section>
 
   <!-- TAB 2: DATA FORM -->
+<!-- TAB 2: DATA FORM (GOOGLE SCRIPT ASLI) -->
   <section id="tab2" class="panel">
-    <iframe data-src="https://script.google.com/macros/s/AKfycbzCD-wLnVHaqsszo-mnsf8pjfos6SHd1opEHRydfq3BM0kjiw6qzS74bpTaJH1w8NN0/exec" title="Data Form"></iframe>
+    <!-- Tambahkan id="iframe_tab2" agar bisa menerima lemparan data dari PWA -->
+    <iframe id="iframe_tab2" data-src="https://script.google.com/macros/s/AKfycbzCD-wLnVHaqsszo-mnsf8pjfos6SHd1opEHRydfq3BM0kjiw6qzS74bpTaJH1w8NN0/exec" title="Data Form"></iframe>
     <div class="loader"><div class="spinner"></div><span>Memuat Data Form…</span></div>
   </section>
 
@@ -78,7 +80,7 @@
       <div class="form-body">
         <!-- Input Umum -->
         <div class="form-group"><label>1. Nama Pemilik (Sesuai KTP)</label>
-          <input type="text" id="f_nama" placeholder="Contoh: Dimas Satrio" oninput="cekValidasi(); generatePreview()">
+          <input type="text" id="f_nama" placeholder="Contoh: Dimas Satrio" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
         </div>
         <div class="form-group"><label>2. NIK Pemilik <span id="err_nik" class="err-msg"></span></label>
           <input type="number" id="f_nik" placeholder="Wajib 16 digit angka" oninput="cekValidasi(); generatePreview()">
@@ -87,7 +89,7 @@
           <input type="number" id="f_lama_jam" placeholder="Maksimal 16" max="16" oninput="cekValidasi(); generatePreview()">
         </div>
         <div class="form-group"><label>4. Nama Kapal</label>
-          <input type="text" id="f_kapal" placeholder="Sesuai pas kapal" oninput="cekValidasi(); generatePreview()">
+          <input type="text" id="f_kapal" placeholder="Sesuai pas kapal" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
         </div>
         <div class="form-group"><label>5. No WhatsApp Aktif <span id="err_wa" class="err-msg"></span></label>
           <input type="number" id="f_wa" placeholder="Contoh: 08123456789" oninput="cekValidasi(); generatePreview()">
@@ -159,12 +161,17 @@
       <div class="preview-area">
         <div class="preview-header">
           <strong>Preview Hasil:</strong>
-          <div style="display:flex; gap:6px;">
-            <button class="btn secondary sm" id="btnSalin" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
-            <button class="btn primary sm" id="btnKirimWA" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
+          <div style="display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;">
+            <button class="btn accent sm" onclick="simpanKeTab2()"><i class="material-icons-round" style="font-size:16px;">save</i> Simpan ke Database</button>
+            <button class="btn secondary sm" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
+            <button class="btn primary sm" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
           </div>
         </div>
         <textarea id="result-preview" readonly placeholder="Isi form di atas untuk melihat hasil di sini..."></textarea>
+      </div>
+      
+      <div style="margin-top: 12px;">
+        <button class="btn secondary" style="width: 100%;" onclick="clearFormAll()"><i class="material-icons-round">refresh</i> Reset Form</button>
       </div>
     </div>
   </section>
