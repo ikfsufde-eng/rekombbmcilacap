@@ -852,3 +852,148 @@ function sendFormWA() {
 
 // Inisialisasi awal
 document.addEventListener('DOMContentLoaded', generatePreview);
+
+
+// ═══════════════════════════════════════════
+//  FORM PENGAJUAN GENERATOR & VALIDASI
+// ═══════════════════════════════════════════
+let currentBBM = 'pertalite';
+let formIsValid = true; // Status apakah semua data benar
+
+function switchBBM(type) {
+  currentBBM = type;
+  $('tab-pertalite').classList.toggle('active', type === 'pertalite');$('tab-solar').classList.toggle('active', type === 'solar');
+  
+  document.querySelectorAll('.pertalite-only').forEach(el => el.style.display = type === 'pertalite' ? 'block' : 'none');
+  document.querySelectorAll('.solar-only').forEach(el => el.style.display = type === 'solar' ? 'block' : 'none');
+  
+  $('label_hari').innerHTML = type === 'pertalite' 
+    ? '12. Rencana Lama Hari (1 Bulan) <span id="err_lama_hari" class="err-msg"></span>' 
+    : '12. Rencana Lama Hari (1 Trip) <span id="err_lama_hari" class="err-msg"></span>';
+  
+  cekValidasi();
+  generatePreview();
+}
+
+function cekValidasi() {
+  formIsValid = true; // Anggap benar dulu
+
+  // Fungsi pembantu untuk memunculkan pesan error di sebelah label
+  const setError = (id, msg) => {
+    $(id).classList.add('input-error');
+    let errSpan = $('err_' + id.replace('f_', ''));
+    if(errSpan) {
+      errSpan.textContent = msg;
+      errSpan.style.display = 'inline';
+    }
+    formIsValid = false;
+  };
+  // Fungsi pembantu untuk menghilangkan error
+  const clearError = (id) => {
+    $(id).classList.remove('input-error');
+    let errSpan = $('err_' + id.replace('f_', ''));
+    if(errSpan) errSpan.style.display = 'none';
+  };
+
+  // 1. Cek NIK (Wajib tepat 16 digit)
+  let nik = $('f_nik').value.trim();
+  if (nik && nik.length !== 16) setError('f_nik', '(Wajib 16 Digit!)');
+  else clearError('f_nik');
+
+  // 2. Cek Lama Jam Operasi (Maks 16)
+  let jam = parseInt($('f_lama_jam').value);
+  if (jam && jam > 16) setError('f_lama_jam', '(Maksimal 16 Jam!)');
+  else clearError('f_lama_jam');
+
+  // 3. Cek Nomor BKP (Khusus Solar, harus tepat 5 digit)
+  if (currentBBM === 'solar') {
+    let bkp = $('f_bkp').value.trim();
+    if (bkp && bkp.length !== 5) setError('f_bkp', '(Wajib 5 Digit Terakhir!)');
+    else clearError('f_bkp');
+  }
+
+  // 4. Mencegah input angka minus pada semua field angka
+  const numericFields = ['f_wa', 'f_mesin', 'f_sisa_solar', 'f_volume', 'f_gt', 'f_tujuan_p', 'f_lama_hari'];
+  numericFields.forEach(id => {
+    let val = $(id).value.trim();
+    if (val && parseFloat(val) < 0) setError(id, '(Tidak Boleh Minus!)');
+    else if ($(id).classList.contains('input-error')) clearError(id); // Bersihkan jika sudah diperbaiki
+  });
+
+  return formIsValid;
+}
+
+function generatePreview() {
+  const getVal = (id) => $(id).value.trim() || 'xxx';
+  let text = '';
+
+  if (currentBBM === 'pertalite') {
+    text = `ISIIkan5 form permohonan rekom bbm berikut :
+
+1. *Nama Pemilik (diisi sesuai KTP) : ${getVal('f_nama')}
+2. *NIK Pemilik (pastikan ditulis sesuai KTP) : ${getVal('f_nik')}
+3. *Lama waktu operasi mesin dalam sehari (dalam satuan jam/hari) : ${getVal('f_lama_jam')}
+4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas kecil) : ${getVal('f_kapal')}
+5. *No Whatsapp aktif pemilik : ${getVal('f_wa')}
+6. *Daya Mesin Kapal (sesuai pas kecil) : ${getVal('f_mesin')}
+7. *Alamat Pemilik : ${getVal('f_alamat')}
+8. *Volume Permohonan perbulan (dalam satuan Liter) : ${getVal('f_volume')}
+9. *Tonase Kapal GT Kapal (sesuai pas kecil) : ${getVal('f_gt')}
+10. *Tujuan pengisian pertalite : ${getVal('f_tujuan_p')}
+11. *Nomor registrasi kapal Tanda selar (sesuai pas kecil) : JTA no ${getVal('f_selar')}
+12. *Rencana Lama Hari Operasi 1 bulan : ${getVal('f_lama_hari')}
+13. *Tanggal/Permohonan : ${getVal('f_jenis')}`;
+  } else {
+    text = `ISIIkan6 form permohonan rekom bbm berikut :
+
+1. *Nama Pemilik (diisi sesuai KTP) : ${getVal('f_nama')}
+2. *NIK Pemilik (pastikan ditulis sesuai ktp) : ${getVal('f_nik')}
+3. *Lama waktu operasi mesin dalam sehari (dalam satuan jam/hari) : ${getVal('f_lama_jam')}
+4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas besar) : ${getVal('f_kapal')}
+5. *Nomor Whatsapp aktif : ${getVal('f_wa')}
+6. *Daya Mesin Kapal (sesuai pas besar) : ${getVal('f_mesin')}
+7. *Sisa Solar (dalam satuan Liter) : ${getVal('f_sisa_solar')}
+8. *Volume Permohonan (dalam satuan Liter) : ${getVal('f_volume')}
+9. *Tonase Kapal GT Kapal (sesuai pas besar) : ${getVal('f_gt')}
+10. *Tujuan pengisian solar : ${getVal('f_tujuan_s')}
+11. *Nomor registrasi kapal BKP (5 digit terakhir) : ${getVal('f_bkp')}
+12. *Rencana Lama Hari Operasi dalam 1 Trip : ${getVal('f_lama_hari')}
+13. *Permohonan : ${getVal('f_jenis')}`;
+  }
+  
+  $('result-preview').value = text;
+}
+
+function copyFormText() {
+  if (!cekValidasi()) {
+    toast('⚠️ Tolong perbaiki kotak merah sebelum menyalin data!');
+    return;
+  }
+  
+  const text = $('result-preview').value;
+  if (!text || text.includes('xxx')) {
+    toast('⚠️ Ada data yang masih kosong (xxx).');
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    toast('✅ Teks form berhasil disalin!');
+  });
+}
+
+function sendFormWA() {
+  if (!cekValidasi()) {
+    toast('⚠️ Tolong perbaiki kotak yang merah (Error) sebelum mengirim!');
+    return;
+  }
+
+  const text = $('result-preview').value;
+  if (!text || text.includes('xxx')) {
+    toast('⚠️ Lengkapi data (xxx) terlebih dahulu sebelum dikirim.');
+  }
+  
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+// Menjalankan sekali saat pertama kali dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  generatePreview();
+});
