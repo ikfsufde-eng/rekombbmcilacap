@@ -775,7 +775,7 @@ switchTab(last);
 // ═══════════════════════════════════════════
 let currentBBM = 'pertalite';
 let formIsValid = true;
-const TAB2_BASE_URL = 'https://script.google.com/macros/s/AKfycbzqLQEnDSHkOREXEeM9Smm1S7Cj2uWhcFAsEO6EbZHhtzwhrkzG8IiJiDmZuY4Ipm7_/exec';
+const TAB2_BASE_URL = 'https://script.google.com/macros/s/AKfycbyc5Xx7UWE0MmXGXQjNST2aHKQQo1H46LeZRUmb45pm7HU6JrvbGUKs3XhSaIJf5AG3/exec';
 
 function switchBBM(type) {
   currentBBM = type;
