@@ -115,7 +115,7 @@ document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', 
   }
 }));
 
-$('btnQuickScan').onclick = () => { switchTab('tab4'); mulaiScan(); };$('btnEmptyScan').onclick = () => mulaiScan();
+if ($('btnEmptyScan')) $('btnEmptyScan').onclick = () => mulaiScan();
 
 // ═══════════════════════════════════════════
 //  TAB 4: BUKA LINK APA ADANYA (TANPA KONVERSI)
@@ -963,4 +963,76 @@ function simpanKeTab2() {
 
 document.addEventListener('DOMContentLoaded', () => {
   generatePreview();
+});
+
+// ═══════════════════════════════════════════
+//  WA RESEPSIONIS, MODE DEMO & PANDUAN INSTALASI
+// ═══════════════════════════════════════════
+// Ubah nomor di bawah ini jika nomor WA Resepsionis berbeda (gunakan awalan 62)
+const NO_WA_RESEPSIONIS = '6285156260107';
+
+function hubungiResepsionis() {
+  const pesan = 'Halo Resepsionis Layanan Rekomendasi BBM Dinas Perikanan Kab. Cilacap, saya ingin bertanya terkait layanan Fuel Star W.A...';
+  window.open(`https://wa.me/${NO_WA_RESEPSIONIS}?text=${encodeURIComponent(pesan)}`, '_blank');
+}
+
+if ($('btnWaResepsionis')) {$('btnWaResepsionis').onclick = hubungiResepsionis;
+}
+
+function openGuideModal(tab = 'demo') {
+  $('guide-backdrop').hidden = false;
+  $('guide-modal').hidden = false;
+  switchGuideTab(tab);
+}
+
+function closeGuideModal() {
+  $('guide-backdrop').hidden = true;
+  $('guide-modal').hidden = true;
+  try { localStorage.setItem('fuelstar_guide_seen', '1'); } catch (e) {}
+}
+
+function switchGuideTab(tab) {
+  const isDemo = (tab === 'demo');
+  $('gtab-demo').classList.toggle('active', isDemo);
+  $('gtab-install').classList.toggle('active', !isDemo);$('gcontent-demo').style.display = isDemo ? 'flex' : 'none';
+  $('gcontent-install').style.display = isDemo ? 'none' : 'flex';
+}
+
+function tryFeature(tabId) {
+  closeGuideModal();
+  switchTab(tabId);
+  toast('✨ Membuka fitur yang dipilih...');
+}
+
+if ($('btnHelpGuide'))$('btnHelpGuide').onclick = () => openGuideModal('demo');
+if ($('btnCloseGuide'))$('btnCloseGuide').onclick = closeGuideModal;
+if ($('guide-backdrop'))$('guide-backdrop').onclick = closeGuideModal;
+
+// Tangkap event instalasi PWA otomatis dari Chrome/Edge
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if ($('auto-install-box'))$('auto-install-box').style.display = 'flex';
+});
+
+if ($('btnTriggerInstall')) {$('btnTriggerInstall').onclick = async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      toast('🎉 Terima kasih telah menginstal Fuel Star W.A!');
+      $('auto-install-box').style.display = 'none';
+    }
+    deferredInstallPrompt = null;
+  };
+}
+
+// Otomatis tampilkan Pengenalan Aplikasi saat pengguna baru pertama kali membuka web
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (!localStorage.getItem('fuelstar_guide_seen')) {
+      setTimeout(() => openGuideModal('demo'), 800);
+    }
+  } catch (e) {}
 });
