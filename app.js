@@ -924,7 +924,7 @@ function simpanKeTab2() {
   const pemilik = $('f_nama').value.trim();
   const kapal = $('f_kapal').value.trim();
   const selar = currentBBM === 'pertalite'
-    ? ($('f_selar').value.trim() ? 'JTA no ' +$('f_selar').value.trim() : '')
+    ? ($('f_selar').value.trim() ? 'JTA no ' + $('f_selar').value.trim() : '')
     : $('f_bkp').value.trim();
   const text = $('result-preview').value;
 
@@ -932,44 +932,35 @@ function simpanKeTab2() {
     return toast('⚠️ Nama Pemilik dan Nama Kapal wajib diisi untuk disimpan ke Database!');
   }
 
-  const dataObj = { pemilik, kapal, selar, formwa: text };
+  // Gunakan ID unik agar hanya diproses TEPAT 1 KALI
+  const msgId = 'pwa_' + Date.now();
+  const dataObj = { pemilik, kapal, selar, formwa: text, msgId };
   const payload = { action: 'simpan_dari_pwa', data: dataObj };
 
-  // Simpan cadangan di localStorage PWA juga
-  try {
-    const localData = JSON.parse(localStorage.getItem('form_wa_bbm') || '[]');
-    localData.unshift(dataObj);
-    localStorage.setItem('form_wa_bbm', JSON.stringify(localData));
-  } catch (e) {}
-
   const iframeTab2 = $('iframe_tab2');
-  switchTab('tab2'); // Pindah ke Tab 2 (otomatis memuat iframe jika belum dimuat)
+  const sudahDimuat = iframeTab2 && iframeTab2.getAttribute('src');
 
-  const kirimPesan = () => {
-    if (!iframeTab2 || !iframeTab2.contentWindow) return;
-    // Kirim berulang kali selama 2.5 detik agar pasti tertangkap oleh userHtmlFrame GAS
-    let count = 0;
-    const interval = setInterval(() => {
-      broadcastKeDalamIframe(iframeTab2.contentWindow, payload);
-      count++;
-      if (count >= 5) clearInterval(interval);
-    }, 500);
-  };
+  // Pindah ke Tab 2 (jika belum pernah dibuka, switchTab akan otomatis memuatnya)
+  switchTab('tab2');
 
-  // Jika iframe baru saja dimuat pertama kali, tunggu selesai loading baru kirim
-  if (!iframeTab2.getAttribute('src')) {
-    iframeTab2.addEventListener('load', kirimPesan, { once: true });
-  } else {
-    kirimPesan();
+  if (sudahDimuat && iframeTab2.contentWindow) {
+    // JIKA TAB 2 SUDAH DIMUAT: Langsung tembak 1x TANPA reload iframe (PIN tidak akan ke-reset / freeze)
+    broadcastKeDalamIframe(iframeTab2.contentWindow, payload);
+  } else if (iframeTab2) {
+    // JIKA TAB 2 BARU PERTAMA KALI DIBUKA: Tunggu loading selesai, lalu kirim 1x
+    iframeTab2.addEventListener('load', () => {
+      setTimeout(() => {
+        if (iframeTab2.contentWindow) {
+          broadcastKeDalamIframe(iframeTab2.contentWindow, payload);
+        }
+      }, 600);
+    }, { once: true });
   }
 
-  // Tetap kirim juga via parameter URL sebagai jalur cadangan kedua
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataObj))));
-  iframeTab2.src = `${TAB2_BASE_URL}?pwa_add=${encodeURIComponent(encoded)}&t=${Date.now()}`;
-
-  toast('✅ Data dikirim ke Tab Data Form!');
+  toast('✅ Data berhasil disimpan ke Tab Data Form!');
   ;
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   generatePreview();
 });
