@@ -38,15 +38,19 @@
       <i class="material-icons-round">schedule</i>
       <span id="live-clock">--:-- WIB</span>
     </div>
-    <button class="icon-btn" id="btnQuickScan" title="Buka Scanner QR Cepat" aria-label="Scanner Cepat">
-      <i class="material-icons-round">qr_code_scanner</i>
+    <!-- Tombol WA Resepsionis (Menggantikan Quick Scan di Header) -->
+    <button class="icon-btn wa-btn" id="btnWaResepsionis" title="Hubungi WhatsApp Resepsionis" aria-label="WA Resepsionis">
+      <i class="material-icons-round">support_agent</i>
+    </button>
+    <!-- Tombol Panduan & Mode Demo -->
+    <button class="icon-btn" id="btnHelpGuide" title="Pengenalan Aplikasi & Cara Instal" aria-label="Panduan Aplikasi">
+      <i class="material-icons-round">help_outline</i>
     </button>
     <button class="icon-btn" id="btnNotif" title="Pusat Informasi & Notifikasi" aria-label="Notifikasi">
       <i class="material-icons-round">notifications</i>
       <span class="notif-badge" id="notif-badge">0</span>
     </button>
   </div>
-</header>
 
 <!-- KONTEN UTAMA -->
 <main class="app-content">
@@ -453,6 +457,118 @@
   <div id="notif-list" class="notif-list"></div>
 </aside>
 
+<!-- MODAL PENGENALAN APLIKASI (DEMO) & PANDUAN INSTALASI -->
+<div id="guide-backdrop" class="backdrop" hidden></div>
+<div id="guide-modal" class="guide-modal" hidden>
+  <div class="guide-header">
+    <div>
+      <h2><i class="material-icons-round">rocket_launch</i> Panduan Fuel Star W.A</h2>
+      <p>Pengenalan Fitur & Cara Instalasi Aplikasi</p>
+    </div>
+    <button class="icon-btn-dark" id="btnCloseGuide" aria-label="Tutup"><i class="material-icons-round">close</i></button>
+  </div>
+
+  <!-- Tab Pilihan di dalam Modal -->
+  <div class="guide-tabs">
+    <button class="guide-tab active" id="gtab-demo" onclick="switchGuideTab('demo')">✨ Tur Fitur (Demo)</button>
+    <button class="guide-tab" id="gtab-install" onclick="switchGuideTab('install')">📲 Cara Instal Aplikasi</button>
+  </div>
+
+  <!-- KONTEN 1: PENGENALAN / TUR FITUR APLIKASI -->
+  <div class="guide-body" id="gcontent-demo">
+    <div class="demo-banner">
+      <strong>Selamat Datang di Fuel Star W.A!</strong>
+      <p>Aplikasi pelayanan terpadu Rekomendasi BBM Perikanan Kabupaten Cilacap. Klik tombol <b>"Coba Buka"</b> di bawah untuk mencoba langsung setiap menu:</p>
+    </div>
+
+    <div class="guide-step-list">
+      <div class="guide-step">
+        <div class="step-icon"><i class="material-icons-round">manage_search</i></div>
+        <div class="step-info">
+          <h4>1. Cek Status Permohonan</h4>
+          <p>Pantau progres verifikasi dan penerbitan surat rekomendasi BBM Anda secara real-time menggunakan ID Permohonan.</p>
+          <button class="btn primary sm" onclick="tryFeature('tab1')">Coba Buka Cek Status</button>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="step-icon" style="background:#fef3c7;color:#d97706;"><i class="material-icons-round">add_task</i></div>
+        <div class="step-info">
+          <h4>2. Pengajuan Baru (Pertalite & Solar)</h4>
+          <p>Buat format pengajuan rekomendasi BBM otomatis dengan validasi KTP/NIK yang akurat, siap dikirim ke WhatsApp Layanan atau disimpan.</p>
+          <button class="btn accent sm" onclick="tryFeature('tab-pengajuan')">Coba Buat Pengajuan</button>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="step-icon" style="background:#dcfce7;color:#15803d;"><i class="material-icons-round">storage</i></div>
+        <div class="step-info">
+          <h4>3. Data Form (Database Lokal Ber-PIN)</h4>
+          <p>Arsip penyimpanan form pengajuan kapal Anda. Simpan sekali, selanjutnya tinggal pilih dan kirim ulang kapan saja tanpa mengetik dari awal.</p>
+          <button class="btn primary sm" onclick="tryFeature('tab2')">Coba Buka Data Form</button>
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="step-icon" style="background:#e0e7ff;color:#4338ca;"><i class="material-icons-round">description</i></div>
+        <div class="step-info">
+          <h4>4. Berkas Digital & Scanner QR</h4>
+          <p>Kelola kelengkapan dokumen kapal pada menu <b>Berkas Digital</b>, atau pindai QR Code surat rekomendasi pada menu <b>Buka Link Berkas</b>.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+            <button class="btn primary sm" onclick="tryFeature('tab3')">Buka Berkas Digital</button>
+            <button class="btn secondary sm" onclick="tryFeature('tab4')">Buka Scanner / Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KONTEN 2: PANDUAN INSTALASI -->
+  <div class="guide-body" id="gcontent-install" style="display:none;">
+    <!-- Box Instal Otomatis (Muncul jika browser mendukung) -->
+    <div class="install-cta-box" id="auto-install-box" style="display:none;">
+      <div>
+        <strong>⚡ Instalasi Cepat Tersedia!</strong>
+        <p>Pasang aplikasi Fuel Star W.A langsung ke layar utama perangkat Anda.</p>
+      </div>
+      <button class="btn accent" id="btnTriggerInstall"><i class="material-icons-round">download</i> Instal Sekarang</button>
+    </div>
+
+    <div class="install-card">
+      <h4>🤖 Pengguna HP Android (Google Chrome)</h4>
+      <ol>
+        <li>Buka aplikasi ini menggunakan browser <b>Google Chrome</b>.</li>
+        <li>Ketuk ikon <b>Titik Tiga (⋮)</b> di pojok kanan atas layar Chrome.</li>
+        <li>Pilih menu <b>"Tambahkan ke layar utama"</b> (<i>Add to Home screen</i>) atau <b>"Instal aplikasi"</b>.</li>
+        <li>Pilih <b>Instal</b>, maka ikon <b>Fuel Star W.A</b> akan muncul di layar HP Anda.</li>
+      </ol>
+    </div>
+
+    <div class="install-card">
+      <h4>🍎 Pengguna iPhone / iPad (Safari)</h4>
+      <ol>
+        <li>Buka link aplikasi ini di browser <b>Safari</b>.</li>
+        <li>Ketuk ikon <b>Bagikan (Share)</b> (kotak dengan panah ke atas) di bagian bawah layar.</li>
+        <li>Geser ke bawah lalu pilih <b>"Tambah ke Layar Utama"</b> (<i>Add to Home Screen</i>).</li>
+        <li>Ketuk <b>Tambah</b> di pojok kanan atas.</li>
+      </ol>
+    </div>
+
+    <div class="install-card">
+      <h4>💻 Pengguna Laptop / PC (Chrome / Edge)</h4>
+      <ol>
+        <li>Lihat pada bagian kanan kolom alamat URL (<i>Address Bar</i>) di atas.</li>
+        <li>Klik ikon <b>Instal (Layar dengan panah unduh)</b>.</li>
+        <li>Klik <b>Instal</b> untuk memasang aplikasi di Desktop Anda.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="guide-footer">
+    <button class="btn secondary" style="flex:1;" onclick="closeGuideModal()">Tutup Panduan</button>
+    <button class="btn primary" style="flex:1;background:#16a34a;" onclick="hubungiResepsionis()"><i class="material-icons-round">whatsapp</i> Chat Resepsionis</button>
+  </div>
+</div>
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
