@@ -1078,6 +1078,74 @@ body {
   padding: 12px;
 }
 .demo-banner strong { font-size: 0.86rem; color: var(--navy); display: block; margin-bottom: 4px; }
+
+
+/* ── KARTU TROUBLESHOOT INSTALASI PWA ── */
+.troubleshoot-card {
+  background: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 4px;
+}
+.ts-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ts-head i {
+  color: var(--red);
+  font-size: 24px;
+  margin-top: 2px;
+}
+.ts-head h4 {
+  font-size: 0.85rem;
+  color: #881337;
+  margin-bottom: 2px;
+}
+.ts-head p {
+  font-size: 0.73rem;
+  color: #9f1239;
+  line-height: 1.4;
+}
+.ts-diag-box {
+  background: #ffffff;
+  border: 1px solid #fda4af;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 0.73rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.ts-steps {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.73rem;
+  color: #4c0519;
+  line-height: 1.45;
+}
+.ts-steps strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #881337;
+}
+.ts-steps ul {
+  padding-left: 16px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ts-steps code {
+  background: #ffe4e6;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
 .demo-banner p { font-size: 0.76rem; color: var(--muted); line-height: 1.45; }
 
 .guide-step-list { display: flex; flex-direction: column; gap: 10px; }
