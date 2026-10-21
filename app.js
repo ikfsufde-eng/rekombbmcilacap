@@ -1081,7 +1081,15 @@ function detectEnv() {
 
 async function checkUrlOk(url, mustBeImage) {
   try {
-    const r = await fetch(url, { cache: 'no-store' });
+    // Pastikan URL selalu absolut menggunakan location.origin sebagai basis yang valid
+    let targetUrl = url;
+    try {
+      targetUrl = new URL(url, window.location.origin).href;
+    } catch (e) {
+      targetUrl = url;
+    }
+
+    const r = await fetch(targetUrl, { cache: 'no-store' });
     if (!r.ok) return { ok: false, why: 'HTTP ' + r.status };
     if (mustBeImage && !/^image\//i.test(r.headers.get('content-type') || '')) return { ok: false, why: 'bukan file gambar' };
     return { ok: true, res: r };
