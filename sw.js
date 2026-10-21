@@ -1,15 +1,14 @@
-const CACHE = 'fuelstar-v10';
+const CACHE = 'fuelstar-v12';
 const ASSETS = [
   './', 'index.html', 'style.css', 'app.js', 'manifest.json',
   'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {
-  // allSettled: satu file gagal/404 tidak lagi membatalkan instalasi Service Worker
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE)
       .then(c => Promise.allSettled(ASSETS.map(a => c.add(a))))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -23,10 +22,21 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== location.origin) return;
+
+  // Wajib ambil manifest.json terbaru dari server agar tidak mengunci instalasi di Chrome lama
+  if (url.pathname.endsWith('manifest.json')) {
+    e.respondWith(fetch(req, { cache: 'no-store' }).catch(() => caches.match(req)));
+    return;
+  }
+
   e.respondWith(
     fetch(req).then(res => {
-      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy));
+      }
       return res;
     }).catch(() => caches.match(req).then(r => r || caches.match('index.html')))
   );
