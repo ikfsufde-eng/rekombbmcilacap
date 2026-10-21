@@ -1008,28 +1008,162 @@ if ($('btnHelpGuide'))$('btnHelpGuide').onclick = () => openGuideModal('demo');
 if ($('btnCloseGuide'))$('btnCloseGuide').onclick = closeGuideModal;
 if ($('guide-backdrop'))$('guide-backdrop').onclick = closeGuideModal;
 
-// Tangkap event instalasi PWA otomatis dari Chrome/Edge
+// ═══════════════════════════════════════════
+//  DETEKSI INSTALASI PWA & FITUR TROUBLESHOOT
+// ═══════════════════════════════════════════
 let deferredInstallPrompt = null;
+
+function isRunningStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
   if ($('auto-install-box'))$('auto-install-box').style.display = 'flex';
+  updateTroubleshootDiagnostic();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  if ($('auto-install-box'))$('auto-install-box').style.display = 'none';
+  toast('🎉 Aplikasi Fuel Star W.A berhasil diinstal!');
+  updateTroubleshootDiagnostic();
 });
 
 if ($('btnTriggerInstall')) {$('btnTriggerInstall').onclick = async () => {
-    if (!deferredInstallPrompt) return;
+    if (!deferredInstallPrompt) {
+      toast('⚠️ Instalasi tertahan oleh riwayat Chrome. Membuka menu Troubleshoot...');
+      openGuideModal('install');
+      return;
+    }
     deferredInstallPrompt.prompt();
     const { outcome } = await deferredInstallPrompt.userChoice;
     if (outcome === 'accepted') {
       toast('🎉 Terima kasih telah menginstal Fuel Star W.A!');
-      $('auto-install-box').style.display = 'none';
+      if ($('auto-install-box'))$('auto-install-box').style.display = 'none';
     }
     deferredInstallPrompt = null;
+    updateTroubleshootDiagnostic();
   };
 }
 
-// Otomatis tampilkan Pengenalan Aplikasi saat pengguna baru pertama kali membuka web
+// Fungsi Reset Total Service Worker & Cache untuk mengatasi gagal instal ulang
+async function resetPwaInstallation() {
+  toast('⏳ Menghapus Service Worker lama & mereset Cache...');
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) {
+        await reg.unregister();
+      }
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      for (const key of keys) {
+        await caches.delete(key);
+      }
+    }
+    toast('✅ Reset berhasil! Memuat ulang halaman bersih...');
+    setTimeout(() => {
+      window.location.href = window.location.pathname + '?fresh=' + Date.now();
+    }, 1200);
+  } catch (err) {
+    toast('❌ Gagal mereset otomatis: ' + err.message);
+  }
+}
+
+// Suntikkan UI Troubleshoot ke dalam Tab Instalasi Modal Panduan
+function injectTroubleshootUI() {
+  const container = $('gcontent-install');
+  if (!container || $('pwa-troubleshoot-card')) return;
+
+  const card = document.createElement('div');
+  card.id = 'pwa-troubleshoot-card';
+  card.className = 'troubleshoot-card';
+  card.innerHTML = `
+    <div class="ts-head">
+      <i class="material-icons-round">build_circle</i>
+      <div>
+        <h4>Troubleshoot Gagal Instal (Khusus Chrome Pernah Instal)</h4>
+        <p>Jika perangkat Anda pernah menginstal aplikasi ini sebelumnya lalu gagal saat instal ulang, gunakan alat perbaikan di bawah ini.</p>
+      </div>
+    </div>
+    <div id="ts-diag-box" class="ts-diag-box">Memeriksa status registri PWA di Chrome...</div>
+    <button type="button" id="btnResetPwa" class="btn danger" style="width:100%;margin-bottom:10px;">
+      <i class="material-icons-round">restart_alt</i> 1. Reset Cache & Service Worker
+    </button>
+    <div class="ts-steps">
+      <strong>⚠️ Penyebab Utama: "Sisa Aplikasi Lama" Masih Mengunci Chrome</strong>
+      <p>Menghapus ikon di layar depan/Desktop <b>tidak menghapus aplikasi dari sistem Chrome</b>, sehingga Chrome menolak menginstal ulang. Lakukan pembersihan 10 detik ini:</p>
+      <ul>
+        <li>
+          <strong>💻 Di Laptop / PC (Paling Sering Terjadi):</strong><br>
+          Buka tab baru di Chrome, ketik <code>chrome://apps</code> lalu tekan Enter. Klik kanan pada ikon <b>Fuel Star W.A</b> &rarr; pilih <b>Hapus dari Chrome (Remove from Chrome)</b>. Setelah terhapus, kembali ke tab ini dan Refresh!
+          <div style="margin-top:5px;">
+            <button type="button" id="btnCopyChromeApps" class="chip" style="font-size:0.7rem;padding:4px 9px;">
+              <i class="material-icons-round" style="font-size:14px;">content_copy</i> Salin Alamat chrome://apps
+            </button>
+          </div>
+        </li>
+        <li>
+          <strong>📱 Di HP Android:</strong><br>
+          Jangan hanya hapus ikon di layar depan. Buka <b>Pengaturan HP (Settings) &rarr; Aplikasi (Apps) &rarr; cari Fuel Star W.A &rarr; pilih Uninstall (Hapus Instalasi)</b>. Setelah bersih, buka ulang Chrome dan klik Instal.
+        </li>
+      </ul>
+    </div>
+  `;
+  container.appendChild(card);
+
+  $('btnResetPwa').onclick = resetPwaInstallation;
+  $('btnCopyChromeApps').onclick = () => {
+    navigator.clipboard.writeText('chrome://apps').then(() => {
+      toast('✅ Disalin! Buka tab baru, tempel (Paste) di kotak URL atas lalu tekan Enter.');
+    });
+  };
+  updateTroubleshootDiagnostic();
+}
+
+async function updateTroubleshootDiagnostic() {
+  const diagEl = $('ts-diag-box');
+  if (!diagEl) return;
+
+  const isStandalone = isRunningStandalone();
+  let swActive = false;
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      swActive = !!(reg && reg.active);
+    } catch (e) {}
+  }
+
+  let ghostInstalled = false;
+  if ('getInstalledRelatedApps' in navigator) {
+    try {
+      const related = await navigator.getInstalledRelatedApps();
+      if (related && related.length > 0) ghostInstalled = true;
+    } catch (e) {}
+  }
+
+  let statusInstall = '⚠️ Tertahan (Chrome mendeteksi aplikasi pernah diinstal sebelumnya)';
+  if (isStandalone) {
+    statusInstall = '✅ Sudah berjalan di dalam Mode Aplikasi';
+  } else if (deferredInstallPrompt) {
+    statusInstall = '🟢 Siap Diinstal (Tidak ada konflik, silakan klik tombol Instal)';
+  } else if (ghostInstalled) {
+    statusInstall = '🔴 Konflik Terdeteksi: Sisa aplikasi lama masih tertanam di sistem perangkat!';
+  }
+
+  diagEl.innerHTML = `
+    <div><b>Status Instalasi:</b> ${statusInstall}</div>
+    <div><b>Service Worker:</b> ${swActive ? '🟢 Aktif (v12)' : '🟡 Memuat / Belum Aktif'}</div>
+    <div><b>Mode Tampilan:</b> ${isStandalone ? 'Standalone (Aplikasi)' : 'Tab Browser Chrome'}</div>
+  `;
+}
+
+// Otomatis tampilkan Pengenalan Aplikasi & Injeksi Troubleshoot saat DOM siap
 window.addEventListener('DOMContentLoaded', () => {
+  injectTroubleshootUI();
   try {
     if (!localStorage.getItem('fuelstar_guide_seen')) {
       setTimeout(() => openGuideModal('demo'), 800);
