@@ -1154,7 +1154,16 @@ async function runInstallDiagnostics() {
           for (const sz of ['192x192', '512x512']) {
             const ic = (m.icons || []).find(i => i.sizes === sz && (!i.purpose || /any/.test(i.purpose)));
             if (!ic) { add('bad', 'Ikon ' + sz + ' tidak terdaftar di manifest.'); continue; }
-            const r = await checkUrlOk(new URL(ic.src, mHref).href, true);
+            
+            // Perbaikan aman menggunakan base URL absolut dari halaman saat ini
+            let iconTargetUrl = ic.src;
+            try {
+              iconTargetUrl = new URL(ic.src, location.href).href;
+            } catch (e) {
+              iconTargetUrl = ic.src;
+            }
+            
+            const r = await checkUrlOk(iconTargetUrl, true);
             add(r.ok ? 'ok' : 'bad',
               r.ok ? 'Ikon ' + sz + ' tersedia.' : 'Ikon ' + sz + ' gagal dimuat (' + r.why + ').',
               r.ok ? '' : 'Upload file ' + ic.src + ' ke folder yang sama dengan index.html. Tanpa ikon ini Chrome tidak mengizinkan instal.');
