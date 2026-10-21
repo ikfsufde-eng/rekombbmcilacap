@@ -7,6 +7,7 @@ const ADMIN_PIN = '123456';
 // Opsional: Jika Anda punya URL Google Apps Script default untuk penarikan notifikasi otomatis, isi di sini:
 const DEFAULT_NOTIF_API_URL = 'https://script.google.com/macros/s/AKfycbw5UVQQShzuuWx9S8kg9M8UAoM6duJRQ9LJkR5M6A8VLhVxOuuIOYhh6bzBDI8WNeu4IA/exec';
 
+
 // ═══════════════════════════════════════════
 //  TOAST & AUDIO FEEDBACK
 // ═══════════════════════════════════════════
