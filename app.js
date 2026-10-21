@@ -1205,7 +1205,46 @@ async function runInstallDiagnostics() {
     v.textContent = verdict;
     out.appendChild(v);
   }
+  if (env.inApp && env.android) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'btn primary sm';
+    b.style.marginTop = '6px';
+    b.innerHTML = '<i class="material-icons-round">open_in_browser</i> Buka di Chrome';
+    b.onclick = openInChrome;
+    out.appendChild(b);
+  }
+  const sym = { ok: '[OK]', bad: '[GAGAL]', warn: '[PERHATIAN]' };
+  lastDiagReport = [
+    'LAPORAN DIAGNOSA FUEL STAR W.A',
+    'Waktu: ' + new Date().toLocaleString('id-ID'),
+    'URL: ' + location.href,
+    'Mode terinstal (standalone): ' + isStandalone(),
+    'Event instal Chrome tersedia: ' + !!deferredInstallPrompt,
+    'Browser: ' + env.ua,
+    '',
+    ...rows.map(r => sym[r.s] + ' ' + r.t + (r.fix ? ' → ' + r.fix : '')),
+    verdict ? '\nKesimpulan: ' + verdict : ''
+  ].join('\n');
   diagRunning = false;
+}
+
+let lastDiagReport = '';
+
+function openInChrome() {
+  const u = new URL(location.href);
+  location.href = 'intent://' + u.host + u.pathname + u.search +
+    '#Intent;scheme=https;package=com.android.chrome;end';
+}
+
+async function copyDiagReport() {
+  if (!lastDiagReport) await runInstallDiagnostics();
+  try {
+    await navigator.clipboard.writeText(lastDiagReport);
+    toast('📋 Hasil diagnosa disalin. Tempel ke chat untuk dianalisa.');
+  } catch (e) {
+    window.prompt('Salin teks diagnosa ini:', lastDiagReport);
+  }
 }
 
 // Perbaiki: hapus Service Worker & cache lama (data form/PIN di localStorage TIDAK disentuh), lalu muat ulang
@@ -1229,6 +1268,7 @@ async function repairPwa() {
 
 if ($('btnRunDiag')) $('btnRunDiag').onclick = () => runInstallDiagnostics();
 if ($('btnRepairPwa')) $('btnRepairPwa').onclick = repairPwa;
+if ($('btnCopyDiag')) $('btnCopyDiag').onclick = copyDiagReport;
 
 // Setelah "Perbaiki": buka panduan instal otomatis & tunggu Chrome mengirim izin instal
 window.addEventListener('DOMContentLoaded', () => {
