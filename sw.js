@@ -1,14 +1,16 @@
-const CACHE = 'fuelstar-v12';
+// Naikkan versi ini setiap kali ada perubahan file agar HP lama otomatis memperbarui cache
+const CACHE = 'fuelstar-v11';
 const ASSETS = [
   './', 'index.html', 'style.css', 'app.js', 'manifest.json',
   'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {
-  self.skipWaiting();
+  // allSettled: satu file gagal/404 tidak membatalkan instalasi Service Worker
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => Promise.allSettled(ASSETS.map(a => c.add(a))))
+      .then(c => Promise.allSettled(ASSETS.map(a => c.add(new Request(a, { cache: 'reload' })))))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -20,24 +22,19 @@ self.addEventListener('activate', e => {
   );
 });
 
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', e => {
   const req = e.request;
-  const url = new URL(req.url);
-  if (req.method !== 'GET' || url.origin !== location.origin) return;
-
-  // Wajib ambil manifest.json terbaru dari server agar tidak mengunci instalasi di Chrome lama
-  if (url.pathname.endsWith('manifest.json')) {
-    e.respondWith(fetch(req, { cache: 'no-store' }).catch(() => caches.match(req)));
-    return;
-  }
-
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(
     fetch(req).then(res => {
-      if (res.ok) {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(req, copy));
-      }
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
       return res;
-    }).catch(() => caches.match(req).then(r => r || caches.match('index.html')))
+    }).catch(() =>
+      caches.match(req, { ignoreSearch: true }).then(r => r || (req.mode === 'navigate' ? caches.match('index.html') : Response.error()))
+    )
   );
 });

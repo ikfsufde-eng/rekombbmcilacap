@@ -761,7 +761,9 @@ setTimeout(() => syncRemoteNotifications(false), 3000);
 // ═══════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.error('SW gagal:', err));
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then(reg => { try { reg.update(); } catch (e) {} })
+      .catch(err => console.error('SW gagal:', err));
   });
 }
 
@@ -996,6 +998,7 @@ function switchGuideTab(tab) {
   $('gtab-demo').classList.toggle('active', isDemo);
   $('gtab-install').classList.toggle('active', !isDemo);$('gcontent-demo').style.display = isDemo ? 'flex' : 'none';
   $('gcontent-install').style.display = isDemo ? 'none' : 'flex';
+  if (!isDemo) runInstallDiagnostics();
 }
 
 function tryFeature(tabId) {
@@ -1009,170 +1012,245 @@ if ($('btnCloseGuide'))$('btnCloseGuide').onclick = closeGuideModal;
 if ($('guide-backdrop'))$('guide-backdrop').onclick = closeGuideModal;
 
 // ═══════════════════════════════════════════
-//  DETEKSI INSTALASI PWA & FITUR TROUBLESHOOT (VERSI FIX ANDROID)
+//  INSTALASI PWA + DIAGNOSA / TROUBLESHOOT
 // ═══════════════════════════════════════════
 let deferredInstallPrompt = null;
 
-function isRunningStandalone() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const isStandalone = () =>
+  window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+function setInstallBox(show) {
+  const b = $('auto-install-box');
+  if (b) b.style.display = show ? 'flex' : 'none';
 }
 
-// Daftarkan Service Worker secepatnya & pantau sampai benar-benar Aktif
-async function ensureServiceWorkerReady() {
-  if (!('serviceWorker' in navigator)) return;
-  try {
-    const reg = await navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' });
-    await navigator.serviceWorker.ready;
-    updateTroubleshootDiagnostic();
-    if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-  } catch (err) {
-    console.error('SW gagal:', err);
-    updateTroubleshootDiagnostic();
-  }
-}
-ensureServiceWorkerReady();
-
+// Chrome/Edge/Samsung Internet mengirim event ini jika aplikasi memenuhi syarat & belum terpasang
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  if ($('auto-install-box'))$('auto-install-box').style.display = 'flex';
-  updateTroubleshootDiagnostic();
+  setInstallBox(true);
+  if ($('gcontent-install') && $('gcontent-install').style.display !== 'none') runInstallDiagnostics();
 });
 
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
-  if ($('auto-install-box'))$('auto-install-box').style.display = 'none';
-  toast('🎉 Aplikasi Fuel Star W.A berhasil diinstal!');
-  updateTroubleshootDiagnostic();
+  setInstallBox(false);
+  toast('🎉 Fuel Star W.A berhasil diinstal!');
+  runInstallDiagnostics();
 });
 
-if ($('btnTriggerInstall')) {$('btnTriggerInstall').onclick = async () => {
+if ($('btnTriggerInstall')) {
+  $('btnTriggerInstall').onclick = async () => {
     if (!deferredInstallPrompt) {
-      toast('⚠️ Gunakan menu titik tiga Chrome di pojok kanan atas -> Tambahkan ke layar utama');
-      openGuideModal('install');
+      // Event sudah terpakai/hilang → jangan diam saja, arahkan ke diagnosa
+      setInstallBox(false);
+      toast('ℹ️ Izin instal belum tersedia. Menjalankan diagnosa…');
+      runInstallDiagnostics();
       return;
     }
-    deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    if (outcome === 'accepted') {
-      toast('🎉 Terima kasih telah menginstal Fuel Star W.A!');
-      if ($('auto-install-box'))$('auto-install-box').style.display = 'none';
-    }
+    const promptEvt = deferredInstallPrompt;
     deferredInstallPrompt = null;
-    updateTroubleshootDiagnostic();
+    setInstallBox(false);
+    try {
+      await promptEvt.prompt();
+      const { outcome } = await promptEvt.userChoice;
+      toast(outcome === 'accepted'
+        ? '🎉 Terima kasih telah menginstal Fuel Star W.A!'
+        : 'Instalasi dibatalkan. Jika tombol tidak muncul lagi, ketuk "Perbaiki & Muat Ulang".');
+    } catch (err) {
+      toast('⚠️ Gagal membuka dialog instal. Coba menu ⋮ Chrome → Instal aplikasi.');
+    }
+    runInstallDiagnostics();
   };
 }
 
-// Fungsi Reset Total: Hapus SW, Cache, Storage Situs & Paksa Reload Bersih
-async function resetPwaInstallation() {
-  toast('⏳ Membersihkan data situs, Cache & Service Worker...');
+function detectEnv() {
+  const ua = navigator.userAgent || '';
+  const iOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const android = /Android/i.test(ua);
+  const inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|Telegram|TikTok|musical_ly|Snapchat|WhatsApp|GSA\/|; wv\)/i.test(ua);
+  const edge = /EdgA|Edg\//.test(ua);
+  const opera = /OPR\/|OPT\//.test(ua);
+  const samsung = /SamsungBrowser/i.test(ua);
+  const firefox = /Firefox|FxiOS/i.test(ua);
+  const uc = /UCBrowser|UCWEB/i.test(ua);
+  const chromeIOS = /CriOS/i.test(ua);
+  const chrome = /Chrome\/\d/.test(ua) && !edge && !opera && !samsung && !uc && !firefox && !inApp;
+  return { ua, iOS, android, inApp, edge, opera, samsung, firefox, uc, chromeIOS, chrome };
+}
+
+async function checkUrlOk(url, mustBeImage) {
+  try {
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) return { ok: false, why: 'HTTP ' + r.status };
+    if (mustBeImage && !/^image\//i.test(r.headers.get('content-type') || '')) return { ok: false, why: 'bukan file gambar' };
+    return { ok: true, res: r };
+  } catch (e) {
+    return { ok: false, why: 'tidak bisa diakses' };
+  }
+}
+
+let diagRunning = false;
+async function runInstallDiagnostics() {
+  const out = $('ts-result');
+  if (!out || diagRunning) return;
+  diagRunning = true;
+  out.innerHTML = '<div class="ts-row warn"><i class="material-icons-round">hourglass_top</i><div>Memeriksa kesiapan instalasi…</div></div>';
+
+  const env = detectEnv();
+  const rows = [];
+  const add = (s, t, fix) => rows.push({ s, t, fix });
+  let verdict = '';
+
+  try {
+    if (isStandalone()) {
+      add('ok', 'Aplikasi sedang berjalan sebagai aplikasi terinstal di perangkat ini.');
+      verdict = 'Tidak perlu instal lagi. Jika ingin memasang ulang, hapus ikon lama dulu lalu buka lewat browser.';
+    } else if (env.iOS) {
+      // iOS tidak punya dialog instal otomatis; harus manual lewat Safari
+      const safariOk = !env.inApp && !env.firefox && !env.chromeIOS;
+      add(safariOk ? 'ok' : 'bad',
+        safariOk ? 'Browser Safari terdeteksi.' : 'Bukan Safari / sedang di dalam aplikasi lain.',
+        safariOk ? '' : 'Salin link lalu buka di Safari. Dari WhatsApp/Instagram: ketuk ikon kompas/⋯ → "Buka di Safari".');
+      const ti = await checkUrlOk('apple-touch-icon.png', true);
+      add(ti.ok ? 'ok' : 'bad', ti.ok ? 'Ikon iPhone (apple-touch-icon) tersedia.' : 'Ikon iPhone tidak ditemukan (' + ti.why + ').');
+      verdict = 'Di iPhone/iPad instal dilakukan manual: Bagikan (kotak panah ↑) → "Tambah ke Layar Utama" → Tambah. Jika ikon lama masih ada, hapus dulu ikon itu.';
+    } else {
+      // ── Android / Desktop ──
+      if (window.isSecureContext) add('ok', 'Koneksi aman (HTTPS).');
+      else add('bad', 'Halaman tidak dibuka lewat HTTPS.', 'Instal PWA hanya bisa dari alamat https://');
+
+      if (env.inApp) {
+        add('bad', 'Dibuka dari dalam aplikasi lain (WhatsApp/Facebook/Instagram/dll.).',
+          'Ketuk ⋮ lalu pilih "Buka di Chrome" / "Open in browser". Instal tidak tersedia di browser bawaan aplikasi.');
+      } else if (env.chrome || env.edge || env.samsung) {
+        add('ok', 'Browser mendukung instal aplikasi.');
+      } else {
+        add('warn', 'Browser ini kurang mendukung instal otomatis.', 'Gunakan Google Chrome (disarankan).');
+      }
+
+      if (!('serviceWorker' in navigator)) {
+        add('bad', 'Browser tidak mendukung Service Worker.', 'Perbarui atau ganti ke Google Chrome.');
+      } else {
+        let reg = null;
+        try { reg = await navigator.serviceWorker.getRegistration(); } catch (e) {}
+        if (!reg) add('bad', 'Service Worker belum terdaftar.', 'Ketuk "Perbaiki & Muat Ulang".');
+        else if (reg.active) add('ok', 'Service Worker aktif.');
+        else add('warn', 'Service Worker sedang disiapkan.', 'Tunggu beberapa detik lalu ketuk "Periksa Ulang".');
+      }
+
+      const mLink = document.querySelector('link[rel="manifest"]');
+      const mHref = mLink ? mLink.href : 'manifest.json';
+      const mr = await checkUrlOk(mHref, false);
+      if (!mr.ok) {
+        add('bad', 'File manifest.json tidak bisa dibuka (' + mr.why + ').', 'Pastikan manifest.json ter-upload di folder yang sama dengan index.html.');
+      } else {
+        let m = null;
+        try { m = await mr.res.json(); } catch (e) {}
+        if (!m) {
+          add('bad', 'Isi manifest.json tidak valid.');
+        } else {
+          add('ok', 'Manifest terbaca: "' + (m.short_name || m.name || '?') + '".');
+          for (const sz of ['192x192', '512x512']) {
+            const ic = (m.icons || []).find(i => i.sizes === sz && (!i.purpose || /any/.test(i.purpose)));
+            if (!ic) { add('bad', 'Ikon ' + sz + ' tidak terdaftar di manifest.'); continue; }
+            const r = await checkUrlOk(new URL(ic.src, mHref).href, true);
+            add(r.ok ? 'ok' : 'bad',
+              r.ok ? 'Ikon ' + sz + ' tersedia.' : 'Ikon ' + sz + ' gagal dimuat (' + r.why + ').',
+              r.ok ? '' : 'Upload file ' + ic.src + ' ke folder yang sama dengan index.html. Tanpa ikon ini Chrome tidak mengizinkan instal.');
+          }
+        }
+      }
+
+      if (deferredInstallPrompt) {
+        add('ok', 'Chrome siap menginstal aplikasi ini.');
+        verdict = 'Semua siap! Ketuk tombol hijau "Instal Sekarang" di atas.';
+      } else {
+        add('warn', 'Chrome belum memberi izin instal.',
+          'Biasanya karena aplikasi sudah terpasang di HP ini, dialog baru saja dibatalkan, atau cache versi lama masih tersimpan.');
+        const anyBad = rows.some(r => r.s === 'bad');
+        verdict = anyBad
+          ? 'Perbaiki dulu item bertanda ✖ di atas, lalu ketuk "Perbaiki & Muat Ulang".'
+          : 'Cek menu ⋮ Chrome: jika tertulis "Buka Fuel Star W.A", aplikasi sudah terpasang (cari ikonnya di layar utama / laci aplikasi). Jika tertulis "Instal aplikasi", pilih itu. Jika tidak ada keduanya, ketuk "Perbaiki & Muat Ulang".';
+      }
+    }
+  } catch (err) {
+    add('bad', 'Diagnosa terhenti: ' + (err && err.message ? err.message : err));
+  }
+
+  const icon = { ok: 'check_circle', bad: 'cancel', warn: 'warning' };
+  out.innerHTML = '';
+  rows.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'ts-row ' + r.s;
+    const i = document.createElement('i');
+    i.className = 'material-icons-round';
+    i.textContent = icon[r.s];
+    const d = document.createElement('div');
+    const t = document.createElement('div');
+    t.textContent = r.t;
+    d.appendChild(t);
+    if (r.fix) {
+      const f = document.createElement('small');
+      f.textContent = r.fix;
+      d.appendChild(f);
+    }
+    row.appendChild(i);
+    row.appendChild(d);
+    out.appendChild(row);
+  });
+  if (verdict) {
+    const v = document.createElement('div');
+    v.className = 'ts-verdict';
+    v.textContent = verdict;
+    out.appendChild(v);
+  }
+  diagRunning = false;
+}
+
+// Perbaiki: hapus Service Worker & cache lama (data form/PIN di localStorage TIDAK disentuh), lalu muat ulang
+async function repairPwa() {
+  const btn = $('btnRepairPwa');
+  if (btn) btn.disabled = true;
+  toast('🔧 Membersihkan cache lama…');
   try {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
-      for (const reg of regs) {
-        await reg.unregister();
-      }
+      await Promise.all(regs.map(r => r.unregister()));
     }
-    if ('caches' in window) {
+    if (window.caches) {
       const keys = await caches.keys();
-      for (const key of keys) {
-        await caches.delete(key);
-      }
+      await Promise.all(keys.map(k => caches.delete(k)));
     }
-    // Re-register SW baru sebelum reload
-    toast('✅ Pembersihan selesai! Memuat ulang dengan sistem baru...');
-    setTimeout(() => {
-      window.location.replace(window.location.pathname + '?clean=' + Date.now());
-    }, 1000);
-  } catch (err) {
-    toast('❌ Gagal mereset otomatis: ' + err.message);
-  }
+  } catch (e) {}
+  try { sessionStorage.setItem('fuelstar_repaired', '1'); } catch (e) {}
+  setTimeout(() => location.reload(), 600);
 }
 
-function injectTroubleshootUI() {
-  const container = $('gcontent-install');
-  if (!container || $('pwa-troubleshoot-card')) return;
+if ($('btnRunDiag')) $('btnRunDiag').onclick = () => runInstallDiagnostics();
+if ($('btnRepairPwa')) $('btnRepairPwa').onclick = repairPwa;
 
-  const card = document.createElement('div');
-  card.id = 'pwa-troubleshoot-card';
-  card.className = 'troubleshoot-card';
-  card.innerHTML = `
-    <div class="ts-head">
-      <i class="material-icons-round">build_circle</i>
-      <div>
-        <h4>Troubleshoot Gagal Instal (HP & Laptop)</h4>
-        <p>Gunakan fitur ini jika aplikasi gagal diinstal atau tidak ditemukan di menu Aplikasi HP.</p>
-      </div>
-    </div>
-    <div id="ts-diag-box" class="ts-diag-box">Memeriksa status sistem PWA...</div>
-    <button type="button" id="btnResetPwa" class="btn danger" style="width:100%;margin-bottom:10px;">
-      <i class="material-icons-round">restart_alt</i> 1. Reset Cache & Aktifkan Ulang Sistem
-    </button>
-    <div class="ts-steps">
-      <strong>📱 Jika Dicari Tidak Ada di Menu Aplikasi HP (Android):</strong>
-      <p>Berarti data lama mengendap di dalam <b>Penyimpanan Situs Chrome</b> (bukan di sistem HP). Cara menghapusnya dalam 5 detik:</p>
-      <ul>
-        <li>
-          <strong>Langkah 1 (Hapus Kunci Situs di Chrome):</strong><br>
-          Ketuk ikon <b>Pengaturan Situs (ikon di sebelah kiri alamat <code>ikfsufde-eng.github.io</code> di atas)</b> &rarr; pilih <b>Cookie dan data situs</b> (atau <b>Izin / Detail</b>) &rarr; ketuk ikon <b>Tong Sampah / Hapus data</b>.
-        </li>
-        <li>
-          <strong>Langkah 2 (Pasang Langsung dari Titik Tiga):</strong><br>
-          Ketuk <b>Titik Tiga (⋮) Chrome di pojok kanan atas</b> &rarr; pilih <b>"Tambahkan ke layar utama" (Add to Home screen)</b> atau <b>"Instal aplikasi"</b>.
-        </li>
-        <li>
-          <strong>💻 Jika di Laptop / PC:</strong><br>
-          Buka tab baru, ketik <code>chrome://apps</code> &rarr; klik kanan <b>Fuel Star W.A</b> &rarr; <b>Hapus dari Chrome</b>.
-        </li>
-      </ul>
-    </div>
-  `;
-  container.appendChild(card);
-
-  $('btnResetPwa').onclick = resetPwaInstallation;
-  updateTroubleshootDiagnostic();
-}
-
-async function updateTroubleshootDiagnostic() {
-  const diagEl = $('ts-diag-box');
-  if (!diagEl) return;
-
-  const isStandalone = isRunningStandalone();
-  let swActive = false;
-  if ('serviceWorker' in navigator) {
-    try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      swActive = !!(reg && (reg.active || navigator.serviceWorker.controller));
-    } catch (e) {}
-  }
-
-  let statusInstall = '🟡 Menunggu (Gunakan Titik Tiga ⋮ Chrome -> Tambahkan ke layar utama)';
-  if (isStandalone) {
-    statusInstall = '✅ Sudah berjalan di dalam Mode Aplikasi';
-  } else if (deferredInstallPrompt) {
-    statusInstall = '🟢 Siap Diinstal Otomatis (Klik tombol Instal Sekarang di atas)';
-  }
-
-  diagEl.innerHTML = `
-    <div><b>Status Instalasi:</b> ${statusInstall}</div>
-    <div><b>Service Worker:</b> ${swActive ? '🟢 Aktif & Siap Instal' : '🟡 Sedang Mengaktifkan... (Klik tombol Reset di bawah jika belum hijau)'}</div>
-    <div><b>Mode Tampilan:</b> ${isStandalone ? 'Standalone (Aplikasi)' : 'Tab Browser Chrome'}</div>
-  `;
-}
-
-// Perbarui status diagnostik setiap kali tab "Cara Instal Aplikasi" diklik
-const origSwitchGuideTab = switchGuideTab;
-switchGuideTab = function(tab) {
-  origSwitchGuideTab(tab);
-  if (tab === 'install') {
-    ensureServiceWorkerReady();
-    setTimeout(updateTroubleshootDiagnostic, 300);
-  }
-};
-
+// Setelah "Perbaiki": buka panduan instal otomatis & tunggu Chrome mengirim izin instal
 window.addEventListener('DOMContentLoaded', () => {
-  injectTroubleshootUI();
-  setTimeout(updateTroubleshootDiagnostic, 1000);
+  let repaired = false;
+  try { repaired = sessionStorage.getItem('fuelstar_repaired') === '1'; sessionStorage.removeItem('fuelstar_repaired'); } catch (e) {}
+  if (!repaired) return;
+  setTimeout(() => {
+    openGuideModal('install');
+    toast('✅ Cache dibersihkan. Menunggu Chrome menyiapkan instalasi…');
+    let tries = 0;
+    const iv = setInterval(() => {
+      tries++;
+      if (deferredInstallPrompt || tries >= 10) {
+        clearInterval(iv);
+        runInstallDiagnostics();
+      }
+    }, 1000);
+  }, 1200);
+});
+
+// Otomatis tampilkan Pengenalan Aplikasi saat pengguna baru pertama kali membuka web
+window.addEventListener('DOMContentLoaded', () => {
   try {
     if (!localStorage.getItem('fuelstar_guide_seen')) {
       setTimeout(() => openGuideModal('demo'), 800);

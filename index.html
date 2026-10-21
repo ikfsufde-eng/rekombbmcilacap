@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -534,6 +534,28 @@
       <button class="btn accent" id="btnTriggerInstall"><i class="material-icons-round">download</i> Instal Sekarang</button>
     </div>
 
+    <!-- TROUBLESHOOT: diagnosa otomatis + perbaikan cache -->
+    <div class="install-card ts-card">
+      <h4>🛠️ Diagnosa & Perbaiki Instalasi</h4>
+      <div id="ts-result" class="ts-result"></div>
+      <div class="ts-actions">
+        <button class="btn primary sm" type="button" id="btnRunDiag"><i class="material-icons-round">fact_check</i> Periksa Ulang</button>
+        <button class="btn accent sm" type="button" id="btnRepairPwa"><i class="material-icons-round">build</i> Perbaiki &amp; Muat Ulang</button>
+      </div>
+      <p class="ts-hint">"Perbaiki" hanya membersihkan cache aplikasi. Data Form &amp; PIN Anda tetap aman.</p>
+    </div>
+
+    <div class="install-card">
+      <h4>♻️ HP yang Pernah Instal Tapi Gagal / Ikon Rusak</h4>
+      <ol>
+        <li>Cari ikon <b>Fuel Star W.A</b> di layar utama atau laci aplikasi. Jika bisa dibuka, aplikasi sudah terpasang (menu ⋮ Chrome akan menampilkan <b>"Buka Fuel Star W.A"</b>).</li>
+        <li>Jika ikon lama rusak / tidak mau terbuka: tekan lama ikonnya, pilih <b>Copot / Uninstall</b> (atau lewat <b>Pengaturan → Aplikasi → Fuel Star W.A</b>).</li>
+        <li>Buka kembali link aplikasi di <b>Google Chrome</b> (bukan dari dalam WhatsApp), lalu ketuk <b>"Perbaiki &amp; Muat Ulang"</b> di atas.</li>
+        <li>Tunggu beberapa detik sampai tombol hijau <b>"Instal Sekarang"</b> muncul, atau pilih <b>⋮ → Instal aplikasi</b>.</li>
+        <li><i>Langkah terakhir bila tetap gagal:</i> Chrome ⋮ → <b>Setelan → Setelan situs → Semua situs</b> → pilih situs ini → <b>Hapus &amp; reset</b>. <b>Peringatan:</b> ini ikut menghapus Data Form lokal, jadi catat data penting dulu.</li>
+      </ol>
+    </div>
+
     <div class="install-card">
       <h4>🤖 Pengguna HP Android (Google Chrome)</h4>
       <ol>
@@ -572,6 +594,6 @@
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=21"></script>
 </body>
 </html>
