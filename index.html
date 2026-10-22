@@ -137,13 +137,10 @@
           <input type="text" inputmode="decimal" id="f_mesin" placeholder="Contoh penulisan: 5.5" oninput="this.value=this.value.replace(/[^0-9.]/g,''); cekValidasi(); generatePreview()">
         </div>
         
-        <!-- 7. KHUSUS PERTALITE: Alamat Pemilik (Ds/Kel & Kec) -->
+        <!-- 7. KHUSUS PERTALITE: Alamat Pemilik -->
         <div class="form-group pertalite-only">
-          <label>7. *Alamat Pemilik : Ds/Kel xxx , Kec xxx , Cilacap</label>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <input type="text" id="f_desa" placeholder="Nama Ds/Kel..." oninput="cekValidasi(); generatePreview()">
-            <input type="text" id="f_kec" placeholder="Nama Kecamatan..." oninput="cekValidasi(); generatePreview()">
-          </div>
+          <label>7. *Alamat Pemilik :</label>
+          <input type="text" id="f_alamat" placeholder="Contoh: Ds/Kel xxx , Kec xxx , Cilacap" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
         </div>
         
         <!-- 7. KHUSUS SOLAR: Sisa Solar -->
@@ -184,7 +181,6 @@
         <div class="form-group pertalite-only">
           <label>11. *Nomor registrasi kapal Tanda selar (sesuai pas kecil) : JTA no xxx</label>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span style="font-size:0.84rem; font-weight:700; color:var(--navy); white-space:nowrap;">JTA </span>
             <input type="text" id="f_selar" style="flex:1;" placeholder="Isi nomor tanda selar..." oninput="cekValidasi(); generatePreview()">
           </div>
         </div>
@@ -404,7 +400,7 @@
         <img src="icon-192.png" alt="" style="width:22px;height:22px;border-radius:5px;object-fit:contain;">
         <span>Fuel Star W.A</span>
       </div>
-      <p>Dinas Perikanan Kab. Cilacap · Layanan Perizinan & Rekomendasi BBM</p>
+      <p>Dinas Perikanan Kab. Cilacap · Layanan Rekomendasi BBM · Created By Dimas Satrio Wibowo S.Kel, M.M</p>
     </div>
   </div>
 </nav>
