@@ -659,9 +659,38 @@
 
   </div>
 </div>
+<!-- MODAL FORM PANGGILAN LIVE MEET -->
+<div id="meet-backdrop" class="backdrop" hidden onclick="tutupFormMeet()"></div>
+<div id="meet-modal" class="guide-modal" style="width: min(420px, 94vw);" hidden>
+  <div class="guide-header" style="background: var(--navy);">
+    <div>
+      <h2><i class="material-icons-round">video_camera_front</i> Call Live Bantuan Teknis</h2>
+      <p>Isi data singkat, lalu Anda diarahkan ke Google Meet</p>
+    </div>
+    <button class="icon-btn-dark" onclick="tutupFormMeet()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
+  </div>
+  <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
+    <label class="admin-label" for="meet-nama" style="color: var(--navy);">Nama Lengkap</label>
+    <input type="text" id="meet-nama" class="adm-input" maxlength="60" placeholder="Contoh: Sujasman" autocomplete="name">
+    <label class="admin-label" for="meet-keperluan" style="color: var(--navy);">Keperluan</label>
+    <select id="meet-keperluan" class="adm-input">
+      <option>Baru</option>
+      <option>Perpanjangan</option>
+      <option>Revisi</option>
+      <option>Tambah</option>
+      <option>Kendala Aplikasi</option>
+      <option>Lainnya</option>
+    </select>
+    <button class="btn primary" id="btnMulaiMeet" style="width:100%; justify-content:center; background:#16a34a;" onclick="mulaiPanggilan()">
+      <i class="material-icons-round">videocam</i> Hubungi &amp; Masuk Meet
+    </button>
+    <small class="adm-help">Petugas akan diberi tahu secara otomatis. Tetap berada di ruang Meet sampai dijawab.</small>
+  </div>
+</div>
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
-<script src="app.js?v=22"></script>
+<script src="firebase-config.js?v=1"></script>
+<script src="app.js?v=23"></script>
 </body>
 </html>

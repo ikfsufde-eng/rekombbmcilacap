@@ -1180,7 +1180,8 @@ function bukaLayanan(tipe) {
     link = `https://wa.me/${NO_SISTEM_ELSHA}?text=${encodeURIComponent('Halo Elsha...')}`;
   } 
   else if (tipe === 'meet') {
-    link = LINK_GOOGLE_MEET;
+    bukaFormMeet();
+    return;
   } 
   else if (tipe === 'pengajuan') {
     link = `https://wa.me/${NO_SISTEM_ELSHA}`;
@@ -1523,3 +1524,58 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   } catch (e) {}
 });
+
+
+// ═══════════════════════════════════════════
+//  CALL LIVE MEET → KIRIM PANGGILAN KE FIREBASE (Titik A)
+//  PWA hanya menulis data; alarm dibunyikan Dashboard Resepsionis/Petugas.
+// ═══════════════════════════════════════════
+function bukaFormMeet() {
+  try { $('meet-nama').value = localStorage.getItem('fuelstar_meet_nama') || ''; } catch (e) {}
+  $('meet-modal').hidden = false;
+  $('meet-backdrop').hidden = false;
+  setTimeout(() => $('meet-nama').focus(), 50);
+}
+
+function tutupFormMeet() {
+  $('meet-modal').hidden = true;
+  $('meet-backdrop').hidden = true;
+}
+
+async function mulaiPanggilan() {
+  const nama = $('meet-nama').value.trim();
+  const keperluan = $('meet-keperluan').value;
+  if (nama.length < 3) { toast('⚠️ Isi nama lengkap terlebih dahulu'); $('meet-nama').focus(); return; }
+  try { localStorage.setItem('fuelstar_meet_nama', nama); } catch (e) {}
+
+  // Buka tab Meet SEKARANG (di dalam klik) agar tidak diblokir pop-up blocker; diarahkan setelah data terkirim.
+  const w = window.open('', '_blank');
+  const btn = $('btnMulaiMeet');
+  btn.disabled = true;
+
+  let ok = false;
+  try {
+    if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG.databaseURL) throw new Error('config');
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 6000);
+    const res = await fetch(FIREBASE_CONFIG.databaseURL.replace(/\/$/, '') + '/panggilan.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nama, keperluan, status: 'MENUNGGU',
+        ts: { '.sv': 'timestamp' }, ts_update: { '.sv': 'timestamp' }
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(to);
+    ok = res.ok;
+  } catch (e) { ok = false; }
+
+  btn.disabled = false;
+  tutupFormMeet();
+  toast(ok ? '✅ Resepsionis diberi tahu. Menunggu di Google Meet…'
+           : '⚠️ Petugas belum bisa diberi tahu otomatis. Hubungi Resepsionis via WA.');
+
+  if (w) w.location.href = LINK_GOOGLE_MEET;
+  else window.location.href = LINK_GOOGLE_MEET;
+}

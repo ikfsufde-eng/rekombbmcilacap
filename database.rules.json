@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "panggilan": {
+      ".read": true,
+      ".write": true,
+      ".validate": "newData.hasChildren(['nama','keperluan','status','ts'])",
+      "nama":       { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
+      "keperluan":  { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
+      "status":     { ".validate": "newData.val() == 'MENUNGGU' || newData.val() == 'DIESKALASI' || newData.val() == 'SELESAI'" },
+      "ts":         { ".validate": "newData.isNumber()" },
+      "ts_update":  { ".validate": "newData.isNumber()" },
+      "$other":     { ".validate": false }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Resepsionis</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dashboard.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div id="arm">
+  <h2>🔔 Dashboard Resepsionis</h2>
+  <p>Browser memblokir suara otomatis. Tekan tombol sekali agar alarm bisa berbunyi, lalu biarkan layar ini tetap terbuka.</p>
+  <button id="btnArm" class="green">AKTIFKAN ALARM</button>
+</div>
+<header>
+  <div><h1>Dashboard Resepsionis<small>Alarm berbunyi saat pemohon menunggu</small></h1></div>
+  <div class="pills"><span id="conn" class="pill off">● Menghubungkan…</span></div>
+</header>
+<main>
+  <div id="card" class="card idle">
+    <div id="badge" class="badge">SIAGA</div>
+    <div id="nama" class="big">Belum ada panggilan</div>
+    <div id="kep" class="sub"></div>
+    <div id="age" class="age"></div>
+    <div id="actions" class="actions"></div>
+  </div>
+</main>
+<footer><button id="btnTest" class="ghost">Tes Alarm</button></footer>
+<script>
+window.DASH = {
+  title: 'Dashboard Resepsionis',
+  alarmOn: 'MENUNGGU',
+  buttons: (d, h) => {
+    if (d.status === "MENUNGGU") {
+      h.btn("🔇 Diam (saya yang tangani)", "ghost", h.mute);
+      h.btn("⬆️ ESKALASI KE PETUGAS TEKNIS", "amber", () => h.setStatus("DIESKALASI"));
+    } else {
+      h.btn("Sudah dieskalasi — menunggu petugas teknis", "ghost", () => {});
+    }
+    h.btn("✅ Selesai", "green", () => h.setStatus("SELESAI"));
+  }
+};
+</script>
+<script src="dashboard.js"></script>
+</body>
+</html>

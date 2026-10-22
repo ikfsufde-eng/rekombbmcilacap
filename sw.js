@@ -1,7 +1,7 @@
 // Naikkan versi ini setiap kali ada perubahan file agar HP lama otomatis memperbarui cache
-const CACHE = 'fuelstar-v12';
+const CACHE = 'fuelstar-v13';
 const ASSETS = [
-  './', 'index.html', 'style.css', 'app.js', 'manifest.json',
+  './', 'index.html', 'style.css', 'app.js', 'firebase-config.js', 'manifest.json',
   'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon.png'
 ];
 

@@ -1,0 +1,30 @@
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0f2557;--bg:#0a0f1e;--card:#111827;--line:#2d3748;--text:#f1f5f9;--muted:#94a3b8;--red:#e11d48;--green:#10b981;--amber:#f59e0b;--blue:#2563eb}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:var(--navy);border-bottom:1px solid var(--line)}
+header h1{font-size:1.15rem}
+header small{color:#bfdbfe;display:block;font-weight:500;font-size:.75rem;margin-top:2px}
+.pills{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:99px;background:#1f2937}
+.pill.on{background:#064e3b;color:#6ee7b7}.pill.off{background:#7f1d1d;color:#fecaca}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:min(560px,100%);background:var(--card);border:2px solid var(--line);border-radius:20px;padding:28px;text-align:center}
+.card.idle .big{color:var(--muted)}
+.card.ring{border-color:var(--red);animation:pulse 1s infinite}
+.card.info{border-color:var(--amber)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.6)}50%{box-shadow:0 0 0 22px rgba(225,29,72,0)}}
+.badge{display:inline-block;font-weight:800;font-size:.8rem;letter-spacing:.06em;padding:6px 14px;border-radius:99px;margin-bottom:14px;background:#1f2937;color:var(--muted)}
+.badge.MENUNGGU{background:var(--red);color:#fff}.badge.DIESKALASI{background:var(--amber);color:#000}.badge.SELESAI{background:#064e3b;color:#6ee7b7}
+.big{font-size:2rem;font-weight:800;line-height:1.2;word-break:break-word}
+.sub{font-size:1.1rem;color:var(--muted);margin-top:8px}
+.age{font-size:.85rem;color:var(--muted);margin-top:6px}
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+button,.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:14px 16px;cursor:pointer;color:#fff;background:var(--blue);text-decoration:none;display:block;font-size:1rem}
+button.amber{background:var(--amber);color:#000}button.red{background:var(--red)}button.green{background:#059669}button.ghost{background:#1f2937;color:var(--text)}
+button:disabled{opacity:.5}
+footer{padding:10px 20px;display:flex;gap:8px;justify-content:center;border-top:1px solid var(--line)}
+footer button{padding:8px 14px;font-size:.8rem}
+#arm{position:fixed;inset:0;background:rgba(10,15,30,.97);z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
+#arm h2{font-size:1.5rem}#arm p{color:var(--muted);max-width:420px}#arm button{font-size:1.2rem;padding:18px 32px}
+#arm.hide{display:none}
