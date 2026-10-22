@@ -1073,26 +1073,64 @@ function bukaWaMe() {
   $('btnCekWa').style.display = 'none';$('grupKonfirmasiWa').style.display = 'block';
 }
 
+// --- 3. FUNGSI PENGUNCIAN FORM BAWAH & TOMBOL SUBMIT ---
+function aturKunciFormBawah(dikunci) {
+  // Daftar ID isian form dari nomor 6 sampai 13 (termasuk dropdown)
+  const idIsian = ['f_mesin', 'f_desa', 'f_kec', 'f_sisa_solar', 'f_volume', 'f_gt', 'f_tujuan_p', 'f_tujuan_s', 'f_selar', 'f_bkp', 'f_lama_hari', 'f_jenis_p', 'f_jenis_s'];
+  
+  idIsian.forEach(id => {
+    const elemen = $(id);
+    if (elemen) {
+      elemen.disabled = dikunci;
+      elemen.style.backgroundColor = dikunci ? '#e2e8f0' : 'var(--bg)';
+      elemen.style.cursor = dikunci ? 'not-allowed' : 'text';
+    }
+  });
+  
+  // Kunci juga tombol aksi (Simpan, Salin, Kirim WA) di area preview
+  const tombolAksi = document.querySelectorAll('.preview-header button');
+  tombolAksi.forEach(btn => {
+    btn.disabled = dikunci;
+    btn.style.opacity = dikunci ? '0.5' : '1';
+    btn.style.cursor = dikunci ? 'not-allowed' : 'pointer';
+  });
+}
+
+// Mengunci form secara otomatis saat aplikasi pertama kali dimuat
+document.addEventListener('DOMContentLoaded', () => {
+   aturKunciFormBawah(true);
+});
+
+// --- UPDATE FUNGSI WA (Ganti fungsi yang sebelumnya dengan ini) ---
 function konfirmasiWaValid() {
-  // Mengunci form agar tidak bisa diedit lagi
   $('f_wa').readOnly = true;
-  $('f_wa').style.backgroundColor = '#e2e8f0'; // Beri warna abu-abu (terkunci)
+  $('f_wa').style.backgroundColor = '#e2e8f0';
   $('grupKonfirmasiWa').style.display = 'none';
-  toast('✅ Nomor WA dikunci (Valid).');
+  
+  // BUKA KUNCI isian bawah & tombol submit setelah WA divalidasi
+  aturKunciFormBawah(false);
+  toast('✅ Nomor WA Valid. Form lanjutan telah dibuka.');
 }
 
 function perbaikiWa() {
-  // Membuka kunci agar bisa diketik ulang
   $('btnCekWa').style.display = 'block';
-  $('grupKonfirmasiWa').style.display = 'none';$('f_wa').readOnly = false;
-  $('f_wa').style.backgroundColor = 'var(--bg)';$('f_wa').focus();
+  $('grupKonfirmasiWa').style.display = 'none';
+  $('f_wa').readOnly = false;
+  $('f_wa').style.backgroundColor = 'var(--bg)';
+  $('f_wa').focus();
+  
+  // KUNCI KEMBALI isian bawah karena nomor belum valid
+  aturKunciFormBawah(true);
 }
 
 function resetValidasiWA() {
-  // Memicu ulang tombol jika pemohon mengetik ulang nomor
   $('btnCekWa').style.display = 'block';
-  if($('grupKonfirmasiWa')) $('grupKonfirmasiWa').style.display = 'none';$('f_wa').readOnly = false;
+  if($('grupKonfirmasiWa')) $('grupKonfirmasiWa').style.display = 'none';
+  $('f_wa').readOnly = false;
   $('f_wa').style.backgroundColor = 'var(--bg)';
+  
+  // KUNCI KEMBALI form bawah jika pemohon mengubah nomor WA di tengah jalan
+  aturKunciFormBawah(true);
 }
 
 // ═══════════════════════════════════════════
