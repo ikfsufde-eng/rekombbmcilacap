@@ -969,10 +969,77 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════
+//  FITUR TAMBAHAN: IMPORT EXCEL & VALIDASI WA
+// ═══════════════════════════════════════════
+
+// --- 1. Fungsi Import dari Excel ---
+function prosesImport() {
+  const pasteData = $('pasteArea').value;
+  const dataArray = pasteData.split('\t'); // Memisahkan data berdasarkan Tab dari Excel
+  
+  if (dataArray.length > 1) {
+    // Menyesuaikan dengan ID input asli Anda. Ubah indeks [0], [1] sesuai urutan kolom Excel Anda
+    if (dataArray[0]) $('f_nama').value = dataArray[0].trim().toUpperCase();
+    if (dataArray[1]) $('f_nik').value = dataArray[1].trim();
+    if (dataArray[2]) $('f_wa').value = dataArray[2].trim();
+    
+    // Refresh validasi dan preview text
+    cekValidasi();
+    generatePreview();
+    
+    toast('✅ Data berhasil diimpor!');
+    $('pasteArea').value = ''; // Kosongkan area paste
+  } else {
+    toast('⚠️ Format salah. Copy langsung dari baris Excel/Spreadsheet.');
+  }
+}
+
+// --- 2. Fungsi Validasi WhatsApp ---
+function bukaWaMe() {
+  let noWa = $('f_wa').value;
+  if (noWa.length < 9) {
+    return toast('⚠️ Isi nomor WA terlebih dahulu!');
+  }
+  
+  // Format ke 628
+  if (noWa.startsWith('0')) {
+    noWa = '62' + noWa.substring(1);
+  }
+
+  // Buka WhatsApp di tab baru
+  window.open(`https://wa.me/${noWa}`, '_blank');
+
+  // Ganti tombol cek menjadi tombol konfirmasi
+  $('btnCekWa').style.display = 'none';$('grupKonfirmasiWa').style.display = 'block';
+}
+
+function konfirmasiWaValid() {
+  // Mengunci form agar tidak bisa diedit lagi
+  $('f_wa').readOnly = true;
+  $('f_wa').style.backgroundColor = '#e2e8f0'; // Beri warna abu-abu (terkunci)
+  $('grupKonfirmasiWa').style.display = 'none';
+  toast('✅ Nomor WA dikunci (Valid).');
+}
+
+function perbaikiWa() {
+  // Membuka kunci agar bisa diketik ulang
+  $('btnCekWa').style.display = 'block';
+  $('grupKonfirmasiWa').style.display = 'none';$('f_wa').readOnly = false;
+  $('f_wa').style.backgroundColor = 'var(--bg)';$('f_wa').focus();
+}
+
+function resetValidasiWA() {
+  // Memicu ulang tombol jika pemohon mengetik ulang nomor
+  $('btnCekWa').style.display = 'block';
+  if($('grupKonfirmasiWa')) $('grupKonfirmasiWa').style.display = 'none';$('f_wa').readOnly = false;
+  $('f_wa').style.backgroundColor = 'var(--bg)';
+}
+
+// ═══════════════════════════════════════════
 //  WA RESEPSIONIS, MODE DEMO & PANDUAN INSTALASI
 // ═══════════════════════════════════════════
 // Ubah nomor di bawah ini jika nomor WA Resepsionis berbeda (gunakan awalan 62)
-const NO_WA_RESEPSIONIS = '6285156260107';
+const NO_WA_RESEPSIONIS = '6287730601432';
 
 function hubungiResepsionis() {
   const pesan = 'Halo Resepsionis Layanan Rekomendasi BBM Dinas Perikanan Kab. Cilacap, saya ingin bertanya terkait layanan Fuel Star W.A...';
