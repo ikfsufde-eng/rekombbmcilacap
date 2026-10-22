@@ -56,7 +56,7 @@
 <main class="app-content">
   <!-- TAB 1: CEK STATUS -->
   <section id="tab1" class="panel active">
-    <iframe data-src="https://script.google.com/macros/s/AKfycbwCCLN-v2RIvdOI-JUxvOr8C5XMl-WRXGHqF1mothKUv3elaWa7YZt-QsMq3WlJMlMfWA/exec" title="Cek Status"></iframe>
+    <iframe data-src="https://script.google.com/macros/s/AKfycbyzDRRyFQo7ZNsZZxWJjXkfJJCpttcLHBSMLXPlqjEcBu7Xsj0gbrS2JkAn7E6GK_Scpg/exec" title="Cek Status"></iframe>
     <div class="loader"><div class="spinner"></div><span>Memuat Sistem Cek Status…</span></div>
   </section>
 
@@ -82,7 +82,7 @@
       </div>
       <!-- FITUR IMPORT EXCEL -->
       <div style="margin-bottom: 16px; padding: 12px; background: #e0e7ff; border: 1px dashed #4338ca; border-radius: 10px;">
-        <label style="font-size: 0.75rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; display: block;">📥 Import Cepat (Paste baris dari Excel):</label>
+        <label style="font-size: 0.75rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; display: block;">📥 Import Cepat (Paste Isian Form dari WA):</label>
         <textarea id="pasteArea" rows="2" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size:0.8rem; font-family: inherit;" placeholder="Paste di sini... (Contoh: Nama [tab] NIK [tab] WA)"></textarea>
         <button type="button" class="btn primary sm" onclick="prosesImport()" style="margin-top: 8px; width: 100%;">
           <i class="material-icons-round">content_paste</i> Isi Form Otomatis
@@ -605,6 +605,53 @@
   <div class="guide-footer">
     <button class="btn secondary" style="flex:1;" onclick="closeGuideModal()">Tutup Panduan</button>
     <button class="btn primary" style="flex:1;background:#16a34a;" onclick="hubungiResepsionis()"><i class="material-icons-round">whatsapp</i> Chat Resepsionis</button>
+  </div>
+</div>
+<!-- MODAL PILIHAN KONTAK BANTUAN -->
+<div id="contact-backdrop" class="backdrop" hidden onclick="tutupKontak()"></div>
+<div id="contact-modal" class="guide-modal" style="width: min(420px, 94vw);" hidden>
+  <div class="guide-header" style="background: var(--navy);">
+    <div>
+      <h2><i class="material-icons-round">support_agent</i> Pusat Bantuan</h2>
+      <p>Pilih layanan yang Anda butuhkan</p>
+    </div>
+    <button class="icon-btn-dark" onclick="tutupKontak()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
+  </div>
+
+  <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--bg);">
+    
+    <!-- Pilihan 1: Resepsionis -->
+    <button class="btn secondary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto;" onclick="bukaLayanan('resepsionis')">
+      <div style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px;">
+        <i class="material-icons-round" style="font-size: 18px;">person</i> Chat Bantuan Resepsionis
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); white-space: normal; line-height: 1.4;">Jam kerja Senin-Jumat 08.00 - 15.30 WIB<br>(Hari libur dan minggu tutup)</div>
+    </button>
+
+    <!-- Pilihan 2: Elsha -->
+    <button class="btn secondary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto;" onclick="bukaLayanan('elsha')">
+      <div style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px;">
+        <i class="material-icons-round" style="font-size: 18px;">smart_toy</i> Chat Asisten Digital Elsha
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); white-space: normal; line-height: 1.4;">Layanan interaktif otomatis (7x24 jam)</div>
+    </button>
+
+    <!-- Pilihan 3: Bantuan Teknis (Meet) -->
+    <button class="btn secondary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto;" onclick="bukaLayanan('meet')">
+      <div style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px;">
+        <i class="material-icons-round" style="font-size: 18px; color: #ea4335;">video_camera_front</i> Call Live Bantuan Teknis
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); white-space: normal; line-height: 1.4;">Panggilan interaktif via Google Meet (Saat online)</div>
+    </button>
+
+    <!-- Pilihan 4: Pengajuan Rekomendasi -->
+    <button class="btn primary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto; background: var(--teal-dark); border: none;" onclick="bukaLayanan('pengajuan')">
+      <div style="font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+        <i class="material-icons-round" style="font-size: 18px;">send</i> Kontak WA Pengajuan Rekomendasi
+      </div>
+      <div style="font-size: 0.72rem; font-weight: 400; color: #d1fae5; white-space: normal; line-height: 1.4;">Kirim format permohonan ke nomor layanan</div>
+    </button>
+
   </div>
 </div>
 <!-- TOAST POPUP -->
