@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -23,6 +23,11 @@
 <!-- HEADER APLIKASI -->
 <header class="app-header">
   <div class="header-brand">
+    <!-- Tombol Sembunyikan Navigasi (Hanya muncul di Desktop) -->
+    <button class="icon-btn hide-mobile" onclick="document.body.classList.toggle('nav-collapsed')" style="background:transparent; border:none; padding:0; width:auto; margin-right:4px; box-shadow:none;" title="Sembunyikan Navigasi">
+      <i class="material-icons-round" style="font-size: 28px;">menu</i>
+    </button>
+    
     <img src="icon-192.png" onerror="this.onerror=null;this.src='apple-touch-icon.png'" alt="Fuel W.A" class="brand-logo">
     <div class="brand-text">
       <div class="title-row">
