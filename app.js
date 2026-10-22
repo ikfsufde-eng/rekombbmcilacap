@@ -1146,7 +1146,7 @@ function resetValidasiWA() {
 // --- 4. FUNGSI POP-UP PUSAT BANTUAN ---
 const NO_RESEPSIONIS = '6287730601432';
 const NO_SISTEM_ELSHA = '6285156260107'; 
-const LINK_GOOGLE_MEET = 'https://meet.google.com/new'; // Ganti dengan link statis/shortlink Anda nanti
+const LINK_GOOGLE_MEET = 'https://meet.google.com/meet/bps-zoro-rvg'; // Ganti dengan link statis/shortlink Anda nanti
 
 // 1. Membuka pop-up pilihan kontak
 function hubungiResepsionis() {
