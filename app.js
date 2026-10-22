@@ -1146,9 +1146,9 @@ function resetValidasiWA() {
 // --- 4. FUNGSI POP-UP PUSAT BANTUAN ---
 const NO_RESEPSIONIS = '6287730601432';
 const NO_SISTEM_ELSHA = '6285156260107'; 
-const LINK_GOOGLE_MEET = 'https://meet.google.com/jpa-ezeo-jpf'; // Ganti tulisan 'new' dengan kode link statis Meet Anda jika ada
+const LINK_GOOGLE_MEET = 'https://meet.google.com/new'; // Ganti dengan link statis/shortlink Anda nanti
 
-// Membuka pop-up pilihan kontak
+// 1. Membuka pop-up pilihan kontak
 function hubungiResepsionis() {
   const modal = $('contact-modal');
   const backdrop = $('contact-backdrop');
@@ -1158,15 +1158,19 @@ function hubungiResepsionis() {
   }
 }
 
-// Menutup pop-up pilihan kontak
+// PENYAMBUNG TOMBOL: Pastikan baris ini ada agar tombol bisa diklik
+if ($('btnWaResepsionis')) {$('btnWaResepsionis').onclick = hubungiResepsionis;
+}
+
+// 2. Menutup pop-up pilihan kontak
 function tutupKontak() {
   $('contact-modal').hidden = true;
   $('contact-backdrop').hidden = true;
 }
 
-// Mengeksekusi rute berdasarkan tombol yang dipilih
+// 3. Mengeksekusi rute berdasarkan tombol yang dipilih
 function bukaLayanan(tipe) {
-  tutupKontak(); // Otomatis menutup pop-up setelah tombol diklik
+  tutupKontak(); 
   let link = '';
   
   if (tipe === 'resepsionis') {
