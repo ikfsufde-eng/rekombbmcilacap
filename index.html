@@ -80,7 +80,14 @@
         <button class="bbm-tab active" id="tab-pertalite" type="button" onclick="switchBBM('pertalite')">⛽ PERTALITE (Pas Kecil)</button>
         <button class="bbm-tab" id="tab-solar" type="button" onclick="switchBBM('solar')">🚢 SOLAR (Pas Besar)</button>
       </div>
-
+      <!-- FITUR IMPORT EXCEL -->
+      <div style="margin-bottom: 16px; padding: 12px; background: #e0e7ff; border: 1px dashed #4338ca; border-radius: 10px;">
+        <label style="font-size: 0.75rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; display: block;">📥 Import Cepat (Paste baris dari Excel):</label>
+        <textarea id="pasteArea" rows="2" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size:0.8rem; font-family: inherit;" placeholder="Paste di sini... (Contoh: Nama [tab] NIK [tab] WA)"></textarea>
+        <button type="button" class="btn primary sm" onclick="prosesImport()" style="margin-top: 8px; width: 100%;">
+          <i class="material-icons-round">content_paste</i> Isi Form Otomatis
+        </button>
+      </div>
       <div class="form-body">
         <!-- 1. Nama Pemilik -->
         <div class="form-group">
@@ -106,10 +113,22 @@
           <input type="text" id="f_kapal" placeholder="Tulis nama kapalnya saja" oninput="this.value=this.value.toUpperCase(); cekValidasi(); generatePreview()">
         </div>
 
-        <!-- 5. Nomor Whatsapp -->
-        <div class="form-group">
-          <label id="lbl_wa">5. *No Whatsapp aktif pemilik : <span id="err_wa" class="err-msg"></span></label>
-          <input type="text" inputmode="numeric" id="f_wa" placeholder="Contoh: 08123456789" oninput="this.value=this.value.replace(/\D/g,''); cekValidasi(); generatePreview()">
+        <!-- 5. Nomor Whatsapp (DENGAN VALIDASI) -->
+        <div class="form-group" style="background: #fffbeb; padding: 10px; border: 1px dashed #f59e0b; border-radius: 10px;">
+          <label id="lbl_wa" style="color: #b45309;">5. *No Whatsapp Aktif (Wajib dicek) : <span id="err_wa" class="err-msg"></span></label>
+          <input type="text" inputmode="numeric" id="f_wa" placeholder="Contoh: 08123456789" oninput="this.value=this.value.replace(/\D/g,''); resetValidasiWA(); cekValidasi(); generatePreview()">
+          
+          <!-- Tombol Cek WA -->
+          <button type="button" class="btn accent sm" id="btnCekWa" onclick="bukaWaMe()" style="margin-top: 8px; width: 100%;">
+            <i class="material-icons-round">search</i> Cek Nomor WA
+          </button>
+          
+          <!-- Konfirmasi Setelah Cek -->
+          <div id="grupKonfirmasiWa" style="display: none; margin-top: 8px; text-align: center;">
+            <p style="font-size: 0.75rem; margin-bottom: 6px; color: var(--navy);">Apakah WA pemohon berhasil terbuka?</p>
+            <button type="button" class="btn primary sm" onclick="konfirmasiWaValid()">✅ Ya, Valid (Kunci Isian)</button>
+            <button type="button" class="btn secondary sm" onclick="perbaikiWa()">✏️ Perbaiki Nomor</button>
+          </div>
         </div>
 
         <!-- 6. Daya Mesin Kapal -->
@@ -165,7 +184,7 @@
         <div class="form-group pertalite-only">
           <label>11. *Nomor registrasi kapal Tanda selar (sesuai pas kecil) : JTA no xxx</label>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span style="font-size:0.84rem; font-weight:700; color:var(--navy); white-space:nowrap;">JTA no</span>
+            <span style="font-size:0.84rem; font-weight:700; color:var(--navy); white-space:nowrap;">JTA </span>
             <input type="text" id="f_selar" style="flex:1;" placeholder="Isi nomor tanda selar..." oninput="cekValidasi(); generatePreview()">
           </div>
         </div>
@@ -212,11 +231,11 @@
       <!-- PREVIEW & TOMBOL AKSI -->
       <div class="preview-area">
         <div class="preview-header">
-          <strong>Preview Hasil Isian (Sama Plek Template):</strong>
+          <strong>Preview Hasil Isian :</strong>
           <div style="display:flex; gap:6px; flex-wrap: wrap; justify-content: flex-end;">
             <button class="btn accent sm" type="button" onclick="simpanKeTab2()"><i class="material-icons-round" style="font-size:16px;">save</i> Simpan ke Database</button>
             <button class="btn secondary sm" type="button" onclick="copyFormText()"><i class="material-icons-round" style="font-size:16px;">content_copy</i> Salin</button>
-            <button class="btn primary sm" type="button" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim WA</button>
+            <button class="btn primary sm" type="button" onclick="sendFormWA()"><i class="material-icons-round" style="font-size:16px;">send</i> Kirim Pengajuan</button>
           </div>
         </div>
         <textarea id="result-preview" readonly style="height: 290px;"></textarea>
