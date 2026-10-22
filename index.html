@@ -618,38 +618,38 @@
     <button class="icon-btn-dark" onclick="tutupKontak()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
   </div>
 
-  <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--bg);">
+ <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
     
     <!-- Pilihan 1: Resepsionis -->
-    <button class="btn secondary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto;" onclick="bukaLayanan('resepsionis')">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px;">
-        <i class="material-icons-round" style="font-size: 18px;">person</i> Chat Bantuan Resepsionis
+    <button style="width: 100%; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(15,37,87,0.03);" onclick="bukaLayanan('resepsionis')">
+      <div style="font-size: 0.9rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px;">
+        <i class="material-icons-round" style="color: #2563eb; font-size: 20px;">person</i> Chat Bantuan Resepsionis
       </div>
-      <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); white-space: normal; line-height: 1.4;">Jam kerja Senin-Jumat 08.00 - 15.30 WIB<br>(Hari libur dan minggu tutup)</div>
+      <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; margin-left: 28px; margin-top: 4px;">Senin - Jumat 08.00-15.30 WIB (Libur Tutup)</div>
     </button>
 
     <!-- Pilihan 2: Elsha -->
-    <button class="btn secondary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto;" onclick="bukaLayanan('elsha')">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px;">
-        <i class="material-icons-round" style="font-size: 18px;">smart_toy</i> Chat Asisten Digital Elsha
+    <button style="width: 100%; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(15,37,87,0.03);" onclick="bukaLayanan('elsha')">
+      <div style="font-size: 0.9rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px;">
+        <i class="material-icons-round" style="color: #0d9488; font-size: 20px;">smart_toy</i> Asisten Digital Elsha
       </div>
-      <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); white-space: normal; line-height: 1.4;">Layanan interaktif otomatis (7x24 jam)</div>
+      <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; margin-left: 28px; margin-top: 4px;">Layanan interaktif otomatis (7x24 jam)</div>
     </button>
 
-    <!-- Pilihan 3: Bantuan Teknis (Meet) -->
-    <button class="btn secondary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto;" onclick="bukaLayanan('meet')">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px;">
-        <i class="material-icons-round" style="font-size: 18px; color: #ea4335;">video_camera_front</i> Call Live Bantuan Teknis
+    <!-- Pilihan 3: Meet -->
+    <button style="width: 100%; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(15,37,87,0.03);" onclick="bukaLayanan('meet')">
+      <div style="font-size: 0.9rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px;">
+        <i class="material-icons-round" style="color: #ea4335; font-size: 20px;">video_camera_front</i> Call Live Bantuan Teknis
       </div>
-      <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); white-space: normal; line-height: 1.4;">Panggilan interaktif via Google Meet (Saat online)</div>
+      <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; margin-left: 28px; margin-top: 4px;">Panggilan interaktif via Google Meet</div>
     </button>
 
-    <!-- Pilihan 4: Pengajuan Rekomendasi -->
-    <button class="btn primary" style="text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; height: auto; background: var(--teal-dark); border: none;" onclick="bukaLayanan('pengajuan')">
-      <div style="font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-        <i class="material-icons-round" style="font-size: 18px;">send</i> Kontak WA Pengajuan Rekomendasi
+    <!-- Pilihan 4: Pengajuan -->
+    <button style="width: 100%; text-align: left; background: linear-gradient(135deg, #059669, #047857); border: none; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(4,120,87,0.2);" onclick="bukaLayanan('pengajuan')">
+      <div style="font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+        <i class="material-icons-round" style="color: #fff; font-size: 20px;">send</i> WA Pengajuan Rekomendasi
       </div>
-      <div style="font-size: 0.72rem; font-weight: 400; color: #d1fae5; white-space: normal; line-height: 1.4;">Kirim format permohonan ke nomor layanan</div>
+      <div style="font-size: 0.75rem; font-weight: 500; color: #d1fae5; margin-left: 28px; margin-top: 4px;">Kirim format permohonan ke nomor ini</div>
     </button>
 
   </div>
