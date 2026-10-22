@@ -860,7 +860,7 @@ function generatePreview() {
 4. *Nama Kapal (tulis nama kapalnya saja sesuai yang tertulis pada pas kecil) : ${valOr('f_kapal', 'xxx')}
 5. *No Whatsapp aktif pemilik : ${valOr('f_wa', 'xxx')}
 6. *Daya Mesin Kapal (sesuai pas kecil, tulis nilainya saja, Contoh penulisan. 5.5 ) : ${valOr('f_mesin', 'xxx')}
-7. *Alamat Pemilik : Ds/Kel ${valOr('f_desa', 'xxx')} , Kec ${valOr('f_kec', 'xxx')} , Cilacap
+7. *Alamat Pemilik : ${valOr('f_alamat', 'Ds/Kel xxx , Kec xxx , Cilacap')}
 8. *Volume Permohonan perbulan (dalam satuan Liter, tulis nilainya saja, Contoh penulisan 600 ) : ${valOr('f_volume', 'xxx')}
 9. *Tonase Kapal GT Kapal (sesuai pas kecil, Contoh penulisan. 1) : ${valOr('f_gt', 'xxx')}
 10. *Tujuan pengisian pertalite (tulis nomor spbu nya, Contoh 4453201) : ${valOr('f_tujuan_p', 'xxx')}
@@ -889,13 +889,24 @@ function generatePreview() {
 }
 
 function clearFormAll() {
-  ['f_nama','f_nik','f_lama_jam','f_kapal','f_wa','f_mesin','f_desa','f_kec','f_sisa_solar','f_volume','f_gt','f_tujuan_p','f_selar','f_bkp','f_lama_hari'].forEach(id => {
+  // f_desa & f_kec diganti f_alamat
+  ['f_nama','f_nik','f_lama_jam','f_kapal','f_wa','f_mesin','f_alamat','f_sisa_solar','f_volume','f_gt','f_tujuan_p','f_selar','f_bkp','f_lama_hari'].forEach(id => {
     const el = $(id);
     if (el) { el.value = ''; el.classList.remove('input-error'); }
   });
   document.querySelectorAll('.err-msg').forEach(el => el.style.display = 'none');
+  
+  // FIX BUG: Paksa buka kunci WA dan kembalikan warna aslinya
+  const inputWa = $('f_wa');
+  if (inputWa) {
+    inputWa.readOnly = false;
+    inputWa.style.backgroundColor = ''; 
+  }
+  
+  if (typeof resetValidasiWA === "function") resetValidasiWA();
+  
   generatePreview();
-  toast('🔄 Form direset');
+  toast('🔄 Form direset & WA siap diisi ulang');
 }
 
 function copyFormText() {
@@ -1000,11 +1011,7 @@ function prosesImport() {
       if (currentBBM === 'solar') {
         $('f_sisa_solar').value = d7.replace(/\D/g,'');
       } else {
-        // Otomatis memisah Ds/Kel dan Kec untuk Pertalite
-        const desa = d7.match(/ds\/kel\s+([^,]+)/i);
-        const kec = d7.match(/kec\s+([^,]+)/i);
-        if(desa) $('f_desa').value = desa[1].trim().toUpperCase();
-        if(kec) $('f_kec').value = kec[1].trim().toUpperCase();
+        $('f_alamat').value = d7.toUpperCase(); // Langsung isi 1 teksbox
       }
     }
 
@@ -1076,7 +1083,7 @@ function bukaWaMe() {
 // --- 3. FUNGSI PENGUNCIAN FORM BAWAH & TOMBOL SUBMIT ---
 function aturKunciFormBawah(dikunci) {
   // Daftar ID isian form dari nomor 6 sampai 13 (termasuk dropdown)
-  const idIsian = ['f_mesin', 'f_desa', 'f_kec', 'f_sisa_solar', 'f_volume', 'f_gt', 'f_tujuan_p', 'f_tujuan_s', 'f_selar', 'f_bkp', 'f_lama_hari', 'f_jenis_p', 'f_jenis_s'];
+  const idIsian = ['f_mesin', 'f_alamat', 'f_sisa_solar', 'f_volume', 'f_gt', 'f_tujuan_p', 'f_tujuan_s', 'f_selar', 'f_bkp', 'f_lama_hari', 'f_jenis_p', 'f_jenis_s'];
   
   idIsian.forEach(id => {
     const elemen = $(id);
