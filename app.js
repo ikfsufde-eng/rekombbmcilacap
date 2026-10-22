@@ -1143,17 +1143,49 @@ function resetValidasiWA() {
 // ═══════════════════════════════════════════
 //  WA RESEPSIONIS, MODE DEMO & PANDUAN INSTALASI
 // ═══════════════════════════════════════════
-// Ubah nomor di bawah ini jika nomor WA Resepsionis berbeda (gunakan awalan 62)
-const NO_WA_RESEPSIONIS = '6287730601432';
+// --- 4. FUNGSI POP-UP PUSAT BANTUAN ---
+const NO_RESEPSIONIS = '6287730601432';
+const NO_SISTEM_ELSHA = '6285156260107'; 
+const LINK_GOOGLE_MEET = 'https://meet.google.com/jpa-ezeo-jpf'; // Ganti tulisan 'new' dengan kode link statis Meet Anda jika ada
 
+// Membuka pop-up pilihan kontak
 function hubungiResepsionis() {
-  const pesan = 'Halo Resepsionis Layanan Rekomendasi BBM Dinas Perikanan Kab. Cilacap, saya ingin bertanya terkait layanan Fuel Star W.A...';
-  window.open(`https://wa.me/${NO_WA_RESEPSIONIS}?text=${encodeURIComponent(pesan)}`, '_blank');
+  const modal = $('contact-modal');
+  const backdrop = $('contact-backdrop');
+  if (modal && backdrop) {
+    modal.hidden = false;
+    backdrop.hidden = false;
+  }
 }
 
-if ($('btnWaResepsionis')) {$('btnWaResepsionis').onclick = hubungiResepsionis;
+// Menutup pop-up pilihan kontak
+function tutupKontak() {
+  $('contact-modal').hidden = true;
+  $('contact-backdrop').hidden = true;
 }
 
+// Mengeksekusi rute berdasarkan tombol yang dipilih
+function bukaLayanan(tipe) {
+  tutupKontak(); // Otomatis menutup pop-up setelah tombol diklik
+  let link = '';
+  
+  if (tipe === 'resepsionis') {
+    link = `https://wa.me/${NO_RESEPSIONIS}?text=${encodeURIComponent('Halo Resepsionis, saya butuh bantuan terkait layanan BBM...')}`;
+  } 
+  else if (tipe === 'elsha') {
+    link = `https://wa.me/${NO_SISTEM_ELSHA}?text=${encodeURIComponent('Halo Elsha...')}`;
+  } 
+  else if (tipe === 'meet') {
+    link = LINK_GOOGLE_MEET;
+  } 
+  else if (tipe === 'pengajuan') {
+    link = `https://wa.me/${NO_SISTEM_ELSHA}`;
+  }
+
+  if (link) {
+    window.open(link, '_blank');
+  }
+}
 function openGuideModal(tab = 'demo') {
   $('guide-backdrop').hidden = false;
   $('guide-modal').hidden = false;
