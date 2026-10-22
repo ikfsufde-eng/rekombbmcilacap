@@ -973,25 +973,85 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════════
 
 // --- 1. Fungsi Import dari Excel ---
+// --- 1. Fungsi Import Cerdas (Bisa Teks WA & Excel) ---
 function prosesImport() {
-  const pasteData = $('pasteArea').value;
-  const dataArray = pasteData.split('\t'); // Memisahkan data berdasarkan Tab dari Excel
-  
-  if (dataArray.length > 1) {
-    // Menyesuaikan dengan ID input asli Anda. Ubah indeks [0], [1] sesuai urutan kolom Excel Anda
-    if (dataArray[0]) $('f_nama').value = dataArray[0].trim().toUpperCase();
-    if (dataArray[1]) $('f_nik').value = dataArray[1].trim();
-    if (dataArray[2]) $('f_wa').value = dataArray[2].trim();
+  const text = $('pasteArea').value;
+  if (!text) return toast('⚠️ Area paste masih kosong!');
+
+  // Fungsi pencari nilai setelah titik dua ":" berdasarkan nomor urut (1., 2., dst)
+  const ambilData = (nomor) => {
+    // Regex: Mencari baris yang diawali nomor urut, diikuti sembarang teks, titik dua, lalu menangkap isinya
+    const regex = new RegExp(`^\\s*${nomor}\\.\\s*\\*?[^:]+:(.+)`, 'im');
+    const hasil = text.match(regex);
+    return hasil ? hasil[1].trim() : '';
+  };
+
+  // ➔ SKENARIO A: Cek apakah data ini hasil copy dari WhatsApp (ada nomor 1. dan titik dua)
+  if (text.includes('1.') && text.includes(':')) {
+    const d1 = ambilData(1); if(d1) $('f_nama').value = d1.toUpperCase();
+    const d2 = ambilData(2); if(d2) $('f_nik').value = d2.replace(/\D/g,'');
+    const d3 = ambilData(3); if(d3) $('f_lama_jam').value = d3.replace(/\D/g,'');
+    const d4 = ambilData(4); if(d4) $('f_kapal').value = d4.toUpperCase();
+    const d5 = ambilData(5); if(d5) $('f_wa').value = d5.replace(/\D/g,'');
+    const d6 = ambilData(6); if(d6) $('f_mesin').value = d6.replace(/[^0-9.]/g,'');
     
-    // Refresh validasi dan preview text
-    cekValidasi();
-    generatePreview();
+    const d7 = ambilData(7); 
+    if(d7) {
+      if (currentBBM === 'solar') {
+        $('f_sisa_solar').value = d7.replace(/\D/g,'');
+      } else {
+        // Otomatis memisah Ds/Kel dan Kec untuk Pertalite
+        const desa = d7.match(/ds\/kel\s+([^,]+)/i);
+        const kec = d7.match(/kec\s+([^,]+)/i);
+        if(desa) $('f_desa').value = desa[1].trim().toUpperCase();
+        if(kec) $('f_kec').value = kec[1].trim().toUpperCase();
+      }
+    }
+
+    const d8 = ambilData(8); if(d8) $('f_volume').value = d8.replace(/\D/g,'');
+    const d9 = ambilData(9); if(d9) $('f_gt').value = d9.replace(/[^0-9.]/g,'');
     
-    toast('✅ Data berhasil diimpor!');
-    $('pasteArea').value = ''; // Kosongkan area paste
-  } else {
-    toast('⚠️ Format salah. Copy langsung dari baris Excel/Spreadsheet.');
+    const d10 = ambilData(10); if(d10) {
+      if (currentBBM === 'solar') $('f_tujuan_s').value = d10.toUpperCase();
+      else $('f_tujuan_p').value = d10.replace(/\D/g,'');
+    }
+    
+    const d11 = ambilData(11); if(d11) {
+      if (currentBBM === 'solar') $('f_bkp').value = d11.replace(/\D/g,'');
+      else $('f_selar').value = d11.replace(/jta no/i, '').trim();
+    }
+    
+    const d12 = ambilData(12); if(d12) $('f_lama_hari').value = d12.replace(/\D/g,'');
+    
+    const d13 = ambilData(13); if(d13) {
+      // Menyesuaikan pilihan dropdown dengan teks yang di-paste
+      if (currentBBM === 'solar') {
+        const opt = Array.from($('f_jenis_s').options).find(o => o.value === d13.toUpperCase());
+        if (opt) $('f_jenis_s').value = d13.toUpperCase();
+      } else {
+        const opt = Array.from($('f_jenis_p').options).find(o => o.value === d13.toUpperCase());
+        if (opt) $('f_jenis_p').value = d13.toUpperCase();
+      }
+    }
+  } 
+  // ➔ SKENARIO B: Jika copy-paste murni dari baris Excel (pisahan kolom / Tab)
+  else if (text.includes('\t')) {
+    const arr = text.split('\t');
+    if (arr[0]) $('f_nama').value = arr[0].trim().toUpperCase();
+    if (arr[1]) $('f_nik').value = arr[1].replace(/\D/g,'');
+    if (arr[2]) $('f_wa').value = arr[2].replace(/\D/g,'');
+  } 
+  else {
+    return toast('⚠️ Format tidak dikenali. Pastikan teks memiliki format nomor urut atau dari Excel.');
   }
+
+  // Refresh tampilan error merah dan preview
+  if (typeof resetValidasiWA === "function") resetValidasiWA(); 
+  cekValidasi();
+  generatePreview();
+  
+  toast('✅ Data berhasil diimpor ke form!');
+  $('pasteArea').value = '';
 }
 
 // --- 2. Fungsi Validasi WhatsApp ---
