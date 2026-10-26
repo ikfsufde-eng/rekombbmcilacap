@@ -12,36 +12,39 @@
 </head>
 <body>
 <div id="arm">
-  <h2>🔔 Dashboard Resepsionis</h2>
-  <p>Browser memblokir suara otomatis. Tekan tombol sekali agar alarm bisa berbunyi, lalu biarkan layar ini tetap terbuka.</p>
-  <button id="btnArm" class="green">AKTIFKAN ALARM</button>
+  <h2>🟩 Dashboard Resepsionis</h2>
+  <p>Masukkan PIN dan nama. Tombol di bawah juga mengaktifkan suara alarm (syarat browser). Biarkan layar ini terbuka.</p>
+  <input id="pin" type="password" placeholder="PIN Dashboard Resepsionis" autocomplete="off">
+  <input id="nama" type="text" placeholder="Nama Anda" maxlength="40">
+  <div id="err"></div>
+  <button id="btnArm" class="green">MASUK &amp; AKTIFKAN ALARM</button>
 </div>
 <header>
-  <div><h1>Dashboard Resepsionis<small>Alarm berbunyi saat pemohon menunggu</small></h1></div>
-  <div class="pills"><span id="conn" class="pill off">● Menghubungkan…</span></div>
+  <div><span class="role">PERAN: RESEPSIONIS</span><h1>Dashboard Resepsionis<small>Alarm berbunyi saat ada pemohon baru menunggu</small></h1></div>
+  <label class="sw" id="swWrap"><input type="checkbox" id="swLayanan"><span class="track"></span><span id="swText">LIVE MEET OFFLINE</span></label>
+  <span id="conn" class="pill off">● Menghubungkan…</span>
 </header>
 <main>
-  <div id="card" class="card idle">
-    <div id="badge" class="badge">SIAGA</div>
-    <div id="nama" class="big">Belum ada panggilan</div>
-    <div id="kep" class="sub"></div>
-    <div id="age" class="age"></div>
-    <div id="actions" class="actions"></div>
-  </div>
+  <div class="legend"><span>🟦 Pemohon (warga)</span><span>🟩 Resepsionis</span><span>🟧 Petugas teknis</span></div>
+  <div id="list"></div>
+  <div id="hist" class="hist"></div>
 </main>
 <footer><button id="btnTest" class="ghost">Tes Alarm</button></footer>
 <script>
 window.DASH = {
+  role: 'RESEPSIONIS',
   title: 'Dashboard Resepsionis',
-  alarmOn: 'MENUNGGU',
-  buttons: (d, h) => {
-    if (d.status === "MENUNGGU") {
-      h.btn("🔇 Diam (saya yang tangani)", "ghost", h.mute);
-      h.btn("⬆️ ESKALASI KE PETUGAS TEKNIS", "amber", () => h.setStatus("DIESKALASI"));
-    } else {
-      h.btn("Sudah dieskalasi — menunggu petugas teknis", "ghost", () => {});
+  pin: '111111',            // GANTI PIN INI
+  canSwitch: false,
+  ringOn: ['MENUNGGU'],
+  ringText: '🔔 PEMOHON BARU MENUNGGU!',
+  actions: (s, h) => {
+    if (s.status === 'MENUNGGU' || s.status === 'DITERIMA' || s.status === 'DIESKALASI') {
+      h.add('📹 Masuk Meet', 'green', () => { h.open(); h.update(Object.assign(s.status === 'MENUNGGU' ? { status: 'DITERIMA' } : {}, { resepsionis: h.nama })); });
     }
-    h.btn("✅ Selesai", "green", () => h.setStatus("SELESAI"));
+    if (s.status === 'MENUNGGU' || s.status === 'DITERIMA') h.add('🆘 Tidak teratasi — Panggil Petugas', 'amber', () => h.update({ status: 'DIESKALASI', resepsionis: h.nama }));
+    if (s.status === 'DIESKALASI') h.add('Menunggu petugas teknis…', 'ghost', () => {});
+    h.add('✅ Selesai', 'ghost', () => h.update({ status: 'SELESAI' }));
   }
 };
 </script>

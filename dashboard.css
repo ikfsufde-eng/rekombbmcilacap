@@ -1,30 +1,38 @@
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--navy:#0f2557;--bg:#0a0f1e;--card:#111827;--line:#2d3748;--text:#f1f5f9;--muted:#94a3b8;--red:#e11d48;--green:#10b981;--amber:#f59e0b;--blue:#2563eb}
+:root{--bg:#0a0f1e;--card:#111827;--line:#2d3748;--text:#f1f5f9;--muted:#94a3b8;--red:#e11d48;--blue:#2563eb;--hd:#0f2557}
+body.role-RESEPSIONIS{--hd:#065f46}body.role-PETUGAS{--hd:#9a3412}
 html,body{height:100%}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:var(--navy);border-bottom:1px solid var(--line)}
-header h1{font-size:1.15rem}
-header small{color:#bfdbfe;display:block;font-weight:500;font-size:.75rem;margin-top:2px}
-.pills{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--hd);border-bottom:1px solid var(--line)}
+header>div{flex:1;min-width:200px}header h1{font-size:1.15rem}header small{display:block;font-size:.72rem;opacity:.85;font-weight:500}
+.role{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.08em;background:rgba(0,0,0,.35);padding:3px 10px;border-radius:99px;margin-bottom:4px}
 .pill{font-size:.72rem;font-weight:700;padding:5px 10px;border-radius:99px;background:#1f2937}
 .pill.on{background:#064e3b;color:#6ee7b7}.pill.off{background:#7f1d1d;color:#fecaca}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
-.card{width:min(560px,100%);background:var(--card);border:2px solid var(--line);border-radius:20px;padding:28px;text-align:center}
-.card.idle .big{color:var(--muted)}
+.sw{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:800;background:#1f2937;padding:7px 14px;border-radius:99px;cursor:pointer}
+.sw.ro{cursor:default;pointer-events:none}.sw.on{background:#064e3b;color:#6ee7b7}.sw input{display:none}
+.track{width:44px;height:24px;border-radius:99px;background:#475569;position:relative;transition:.2s}
+.track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+.track{background:#10b981}.sw input:checked+.track::after{left:23px}
+main{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;max-width:780px;width:100%;margin:0 auto}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.74rem;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:60px 0;font-size:1.1rem}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px}
 .card.ring{border-color:var(--red);animation:pulse 1s infinite}
-.card.info{border-color:var(--amber)}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.6)}50%{box-shadow:0 0 0 22px rgba(225,29,72,0)}}
-.badge{display:inline-block;font-weight:800;font-size:.8rem;letter-spacing:.06em;padding:6px 14px;border-radius:99px;margin-bottom:14px;background:#1f2937;color:var(--muted)}
-.badge.MENUNGGU{background:var(--red);color:#fff}.badge.DIESKALASI{background:var(--amber);color:#000}.badge.SELESAI{background:#064e3b;color:#6ee7b7}
-.big{font-size:2rem;font-weight:800;line-height:1.2;word-break:break-word}
-.sub{font-size:1.1rem;color:var(--muted);margin-top:8px}
-.age{font-size:.85rem;color:var(--muted);margin-top:6px}
-.actions{display:flex;flex-direction:column;gap:10px;margin-top:24px}
-button,.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:14px 16px;cursor:pointer;color:#fff;background:var(--blue);text-decoration:none;display:block;font-size:1rem}
-button.amber{background:var(--amber);color:#000}button.red{background:var(--red)}button.green{background:#059669}button.ghost{background:#1f2937;color:var(--text)}
-button:disabled{opacity:.5}
-footer{padding:10px 20px;display:flex;gap:8px;justify-content:center;border-top:1px solid var(--line)}
-footer button{padding:8px 14px;font-size:.8rem}
-#arm{position:fixed;inset:0;background:rgba(10,15,30,.97);z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
-#arm h2{font-size:1.5rem}#arm p{color:var(--muted);max-width:420px}#arm button{font-size:1.2rem;padding:18px 32px}
-#arm.hide{display:none}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(225,29,72,.6)}50%{box-shadow:0 0 0 18px rgba(225,29,72,0)}}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.nama{font-size:1.35rem;font-weight:800;word-break:break-word}.meta{color:var(--muted);font-size:.85rem;margin-top:3px}
+.badge{font-size:.68rem;font-weight:800;padding:5px 10px;border-radius:99px;white-space:nowrap;background:#1f2937;color:var(--muted)}
+.badge.MENUNGGU,.badge.DIESKALASI{background:var(--red);color:#fff}.badge.DITERIMA{background:#1e3a8a;color:#bfdbfe}.badge.DITANGANI{background:#064e3b;color:#6ee7b7}
+.who{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-size:.74rem;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid}
+.chip.pemohon{background:#172554;border-color:#2563eb;color:#bfdbfe}.chip.resepsionis{background:#052e2b;border-color:#10b981;color:#6ee7b7}
+.chip.petugas{background:#431407;border-color:#f59e0b;color:#fcd34d}.chip.none{border-style:dashed;border-color:#374151;color:#6b7280}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11px 14px;cursor:pointer;color:#fff;background:var(--blue)}
+button.green{background:#059669}button.amber{background:#f59e0b;color:#000}button.ghost{background:#1f2937;color:var(--text)}
+.hist{font-size:.75rem;color:var(--muted)}
+footer{padding:10px;text-align:center;border-top:1px solid var(--line)}footer button{padding:7px 12px;font-size:.78rem}
+#arm{position:fixed;inset:0;background:rgba(10,15,30,.98);z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px}
+#arm.hide{display:none}#arm p{color:var(--muted);max-width:400px;font-size:.9rem}
+#arm input{width:min(320px,100%);padding:12px;border-radius:10px;border:1px solid var(--line);background:#1f2937;color:#fff;font:inherit}
+#arm button{width:min(320px,100%);font-size:1.05rem;padding:15px}#err{color:#fca5a5;font-size:.85rem;min-height:1.2em}

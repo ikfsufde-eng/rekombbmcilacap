@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=25">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -644,7 +644,7 @@
     <!-- Pilihan 3: Meet -->
     <button style="width: 100%; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(15,37,87,0.03);" onclick="bukaLayanan('meet')">
       <div style="font-size: 0.9rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px;">
-        <i class="material-icons-round" style="color: #ea4335; font-size: 20px;">video_camera_front</i> Call Live Bantuan Teknis
+        <i class="material-icons-round" style="color: #ea4335; font-size: 20px;">video_camera_front</i> Call Live Bantuan Teknis <span id="meet-badge" class="meet-badge" style="margin-left:auto;"></span>
       </div>
       <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; margin-left: 28px; margin-top: 4px;">Panggilan interaktif via Google Meet</div>
     </button>
@@ -665,32 +665,31 @@
   <div class="guide-header" style="background: var(--navy);">
     <div>
       <h2><i class="material-icons-round">video_camera_front</i> Call Live Bantuan Teknis</h2>
-      <p>Isi data singkat, lalu Anda diarahkan ke Google Meet</p>
+      <p>Isi identitas, lalu Anda langsung masuk ke Google Meet</p>
     </div>
     <button class="icon-btn-dark" onclick="tutupFormMeet()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
   </div>
-  <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
+  <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #f8fafc;">
+    <div id="meet-status" class="meet-badge" style="align-self:flex-start;"></div>
     <label class="admin-label" for="meet-nama" style="color: var(--navy);">Nama Lengkap</label>
     <input type="text" id="meet-nama" class="adm-input" maxlength="60" placeholder="Contoh: Sujasman" autocomplete="name">
+    <label class="admin-label" for="meet-alamat" style="color: var(--navy);">Alamat (Desa / Kecamatan)</label>
+    <input type="text" id="meet-alamat" class="adm-input" maxlength="120" placeholder="Contoh: Desa Sidakaya, Cilacap Selatan" autocomplete="street-address">
     <label class="admin-label" for="meet-keperluan" style="color: var(--navy);">Keperluan</label>
     <select id="meet-keperluan" class="adm-input">
-      <option>Baru</option>
-      <option>Perpanjangan</option>
-      <option>Revisi</option>
-      <option>Tambah</option>
-      <option>Kendala Aplikasi</option>
-      <option>Lainnya</option>
+      <option>Baru</option><option>Perpanjangan</option><option>Revisi</option><option>Tambah</option><option>Kendala Aplikasi</option><option>Lainnya</option>
     </select>
     <button class="btn primary" id="btnMulaiMeet" style="width:100%; justify-content:center; background:#16a34a;" onclick="mulaiPanggilan()">
-      <i class="material-icons-round">videocam</i> Hubungi &amp; Masuk Meet
+      <i class="material-icons-round">videocam</i> Kirim &amp; Masuk Meet
     </button>
-    <small class="adm-help">Petugas akan diberi tahu secara otomatis. Tetap berada di ruang Meet sampai dijawab.</small>
+    <small class="adm-help">Resepsionis akan diberi tahu otomatis. Tetap berada di ruang Meet sampai dijawab.</small>
   </div>
 </div>
+
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
 <script src="firebase-config.js?v=1"></script>
-<script src="app.js?v=23"></script>
+<script src="app.js?v=25"></script>
 </body>
 </html>

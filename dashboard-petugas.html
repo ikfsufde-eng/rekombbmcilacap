@@ -12,36 +12,35 @@
 </head>
 <body>
 <div id="arm">
-  <h2>🔔 Dashboard Petugas Teknis</h2>
-  <p>Browser memblokir suara otomatis. Tekan tombol sekali agar alarm bisa berbunyi, lalu biarkan layar ini tetap terbuka.</p>
-  <button id="btnArm" class="green">AKTIFKAN ALARM</button>
+  <h2>🟧 Dashboard Petugas Teknis</h2>
+  <p>Masukkan PIN dan nama petugas. Tombol di bawah juga mengaktifkan suara alarm (syarat browser). Biarkan layar ini terbuka.</p>
+  <input id="pin" type="password" placeholder="PIN Dashboard Petugas Teknis" autocomplete="off">
+  <input id="nama" type="text" placeholder="Nama Anda" maxlength="40">
+  <div id="err"></div>
+  <button id="btnArm" class="green">MASUK &amp; AKTIFKAN ALARM</button>
 </div>
 <header>
-  <div><h1>Dashboard Petugas Teknis<small>Alarm berbunyi hanya saat dieskalasi resepsionis</small></h1></div>
-  <div class="pills"><span id="conn" class="pill off">● Menghubungkan…</span></div>
+  <div><span class="role">PERAN: PETUGAS</span><h1>Dashboard Petugas Teknis<small>Atur status Live Meet · alarm berbunyi saat resepsionis memanggil petugas</small></h1></div>
+  <label class="sw" id="swWrap"><input type="checkbox" id="swLayanan"><span class="track"></span><span id="swText">LIVE MEET OFFLINE</span></label>
+  <span id="conn" class="pill off">● Menghubungkan…</span>
 </header>
 <main>
-  <div id="card" class="card idle">
-    <div id="badge" class="badge">SIAGA</div>
-    <div id="nama" class="big">Belum ada panggilan</div>
-    <div id="kep" class="sub"></div>
-    <div id="age" class="age"></div>
-    <div id="actions" class="actions"></div>
-  </div>
+  <div class="legend"><span>🟦 Pemohon (warga)</span><span>🟩 Resepsionis</span><span>🟧 Petugas teknis</span></div>
+  <div id="list"></div>
+  <div id="hist" class="hist"></div>
 </main>
 <footer><button id="btnTest" class="ghost">Tes Alarm</button></footer>
 <script>
 window.DASH = {
+  role: 'PETUGAS',
   title: 'Dashboard Petugas Teknis',
-  alarmOn: 'DIESKALASI',
-  buttons: (d, h) => {
-    if (d.status === "DIESKALASI") {
-      h.btn("📹 BUKA GOOGLE MEET", "green", () => { h.mute(); window.open(MEET_LINK, "_blank"); });
-      h.btn("🔇 Diam", "ghost", h.mute);
-    } else {
-      h.btn("Menunggu eskalasi dari Resepsionis (status: " + d.status + ")", "ghost", () => {});
-    }
-    h.btn("✅ Selesai", "ghost", () => h.setStatus("SELESAI"));
+  pin: '222222',            // GANTI PIN INI
+  canSwitch: true,
+  ringOn: ['DIESKALASI'],
+  ringText: '🚨 PETUGAS DIPANGGIL!',
+  actions: (s, h) => {
+    h.add('📹 Masuk Meet (Petugas)', 'green', () => { h.open(); h.update({ status: 'DITANGANI', petugas: h.nama }); });
+    h.add('✅ Selesai', 'ghost', () => h.update({ status: 'SELESAI' }));
   }
 };
 </script>

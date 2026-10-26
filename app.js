@@ -1150,6 +1150,7 @@ const LINK_GOOGLE_MEET = 'https://meet.google.com/meet/bps-zoro-rvg'; // Ganti d
 
 // 1. Membuka pop-up pilihan kontak
 function hubungiResepsionis() {
+  if (window.refreshMeetBadge) refreshMeetBadge();
   const modal = $('contact-modal');
   const backdrop = $('contact-backdrop');
   if (modal && backdrop) {
@@ -1526,56 +1527,57 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ═══════════════════════════════════════════
-//  CALL LIVE MEET → KIRIM PANGGILAN KE FIREBASE (Titik A)
-//  PWA hanya menulis data; alarm dibunyikan Dashboard Resepsionis/Petugas.
-// ═══════════════════════════════════════════
-function bukaFormMeet() {
-  try { $('meet-nama').value = localStorage.getItem('fuelstar_meet_nama') || ''; } catch (e) {}
-  $('meet-modal').hidden = false;
-  $('meet-backdrop').hidden = false;
-  setTimeout(() => $('meet-nama').focus(), 50);
-}
+// ═══════════════════════════════════════════════════════════════
+//  LIVE MEET (SISI PEMOHON). PWA hanya: cek status ONLINE → kirim data ke Firebase → masuk Google Meet.
+//  Alarm & pengaturan ada di halaman terpisah: dashboard-resepsionis.html dan dashboard-petugas.html
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  const PESAN_TUTUP = '⛔ Live Meet sedang OFFLINE. Silakan hubungi Resepsionis via WhatsApp.';
+  const DB = () => (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.databaseURL && !/ISI_/.test(FIREBASE_CONFIG.databaseURL)) ? FIREBASE_CONFIG.databaseURL.replace(/\/$/, '') : null;
+  const ls = { get: k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
-function tutupFormMeet() {
-  $('meet-modal').hidden = true;
-  $('meet-backdrop').hidden = true;
-}
+    async function cekLayanan() { // true=online, false=offline, null=tidak bisa dicek
+    try {
+      if (!DB()) return null;
+      const c = new AbortController(), t = setTimeout(() => c.abort(), 5000);
+      const r = await fetch(DB() + '/layanan/aktif.json', { signal: c.signal, cache: 'no-store' });
+      clearTimeout(t); if (!r.ok) return null;
+      return (await r.json()) === true;
+    } catch (e) { return null; }
+  }
+  async function refreshMeetBadge() {
+    const st = await cekLayanan();
+    ['meet-badge', 'meet-status'].forEach(id => { const b = $(id); if (!b) return; b.className = 'meet-badge ' + (st === true ? 'on' : st === false ? 'off' : ''); b.textContent = st === true ? '● ONLINE' : st === false ? '● OFFLINE' : '● Status tidak diketahui'; });
+    return st;
+  }
+  let poll = null;
+  window.refreshMeetBadge = refreshMeetBadge;
+  window.bukaFormMeet = async function () {
+    toast('⏳ Mengecek ketersediaan Live Meet…');
+    if ((await refreshMeetBadge()) === false) { toast(PESAN_TUTUP); return; }
+    $('meet-nama').value = ls.get('fs_meet_nama'); $('meet-alamat').value = ls.get('fs_meet_alamat');
+    $('meet-modal').hidden = false; $('meet-backdrop').hidden = false;
+    clearInterval(poll); poll = setInterval(refreshMeetBadge, 8000);
+  };
+  window.tutupFormMeet = function () { $('meet-modal').hidden = true; $('meet-backdrop').hidden = true; clearInterval(poll); };
+  window.mulaiPanggilan = async function () {
+    const nama = $('meet-nama').value.trim(), alamat = $('meet-alamat').value.trim(), keperluan = $('meet-keperluan').value;
+    if (nama.length < 3) { toast('⚠️ Isi nama lengkap'); $('meet-nama').focus(); return; }
+    if (alamat.length < 5) { toast('⚠️ Isi alamat (desa/kecamatan)'); $('meet-alamat').focus(); return; }
+    ls.set('fs_meet_nama', nama); ls.set('fs_meet_alamat', alamat);
+    const w = window.open('', '_blank'); // dibuka di dalam klik agar tidak diblokir pop-up blocker
+    const btn = $('btnMulaiMeet'); btn.disabled = true;
+    if ((await cekLayanan()) === false) { if (w) w.close(); btn.disabled = false; tutupFormMeet(); toast(PESAN_TUTUP); return; }
+    let ok = false;
+    try {
+      const c = new AbortController(), t = setTimeout(() => c.abort(), 6000);
+      const r = await fetch(DB() + '/sesi.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: c.signal,
+        body: JSON.stringify({ nama, alamat, keperluan, status: 'MENUNGGU', ts: { '.sv': 'timestamp' }, ts_update: { '.sv': 'timestamp' } }) });
+      clearTimeout(t); ok = r.ok;
+    } catch (e) {}
+    btn.disabled = false; tutupFormMeet();
+    toast(ok ? '✅ Resepsionis diberi tahu. Menunggu di Google Meet…' : '⚠️ Petugas belum bisa diberi tahu otomatis. Hubungi Resepsionis via WA.');
+    if (w) w.location.href = LINK_GOOGLE_MEET; else window.location.href = LINK_GOOGLE_MEET;
+  };
 
-async function mulaiPanggilan() {
-  const nama = $('meet-nama').value.trim();
-  const keperluan = $('meet-keperluan').value;
-  if (nama.length < 3) { toast('⚠️ Isi nama lengkap terlebih dahulu'); $('meet-nama').focus(); return; }
-  try { localStorage.setItem('fuelstar_meet_nama', nama); } catch (e) {}
-
-  // Buka tab Meet SEKARANG (di dalam klik) agar tidak diblokir pop-up blocker; diarahkan setelah data terkirim.
-  const w = window.open('', '_blank');
-  const btn = $('btnMulaiMeet');
-  btn.disabled = true;
-
-  let ok = false;
-  try {
-    if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG.databaseURL) throw new Error('config');
-    const ctrl = new AbortController();
-    const to = setTimeout(() => ctrl.abort(), 6000);
-    const res = await fetch(FIREBASE_CONFIG.databaseURL.replace(/\/$/, '') + '/panggilan.json', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nama, keperluan, status: 'MENUNGGU',
-        ts: { '.sv': 'timestamp' }, ts_update: { '.sv': 'timestamp' }
-      }),
-      signal: ctrl.signal
-    });
-    clearTimeout(to);
-    ok = res.ok;
-  } catch (e) { ok = false; }
-
-  btn.disabled = false;
-  tutupFormMeet();
-  toast(ok ? '✅ Resepsionis diberi tahu. Menunggu di Google Meet…'
-           : '⚠️ Petugas belum bisa diberi tahu otomatis. Hubungi Resepsionis via WA.');
-
-  if (w) w.location.href = LINK_GOOGLE_MEET;
-  else window.location.href = LINK_GOOGLE_MEET;
-}
+  })();

@@ -1,15 +1,30 @@
 {
   "rules": {
-    "panggilan": {
+    "layanan": {
       ".read": true,
       ".write": true,
-      ".validate": "newData.hasChildren(['nama','keperluan','status','ts'])",
-      "nama":       { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
-      "keperluan":  { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
-      "status":     { ".validate": "newData.val() == 'MENUNGGU' || newData.val() == 'DIESKALASI' || newData.val() == 'SELESAI'" },
-      "ts":         { ".validate": "newData.isNumber()" },
-      "ts_update":  { ".validate": "newData.isNumber()" },
-      "$other":     { ".validate": false }
+      ".validate": "newData.hasChildren(['aktif'])",
+      "aktif": { ".validate": "newData.isBoolean()" },
+      "oleh":  { ".validate": "newData.isString() && newData.val().length <= 40" },
+      "ts":    { ".validate": "newData.isNumber()" },
+      "$other": { ".validate": false }
+    },
+    "sesi": {
+      ".read": true,
+      ".indexOn": ["ts"],
+      "$id": {
+        ".write": true,
+        ".validate": "newData.hasChildren(['nama','alamat','keperluan','status','ts'])",
+        "nama":        { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
+        "alamat":      { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120" },
+        "keperluan":   { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60" },
+        "status":      { ".validate": "newData.val() == 'MENUNGGU' || newData.val() == 'DITERIMA' || newData.val() == 'DIESKALASI' || newData.val() == 'DITANGANI' || newData.val() == 'SELESAI'" },
+        "resepsionis": { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "petugas":     { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "ts":          { ".validate": "newData.isNumber()" },
+        "ts_update":   { ".validate": "newData.isNumber()" },
+        "$other":      { ".validate": false }
+      }
     }
   }
 }

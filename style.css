@@ -1180,3 +1180,7 @@ body {
     font-size: 24px; 
   }
 }
+
+/* ═══ LIVE MEET ═══ */
+.meet-badge{font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:99px;background:#e2e8f0;color:#475569;white-space:nowrap}
+.meet-badge.on{background:#dcfce7;color:#15803d}.meet-badge.off{background:#fee2e2;color:#b91c1c}
