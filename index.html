@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="stylesheet" href="style.css?v=30">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -728,7 +728,32 @@
     <div id="faq-list"></div>
   </div>
 </div>
-
+<!-- MODAL SIMPAN KONTAK (Muncul Pertama Kali) -->
+<div id="contact-save-backdrop" class="backdrop" hidden></div>
+<div id="contact-save-modal" class="guide-modal" style="width: min(380px, 90vw); max-width: 90vw;" hidden>
+  <div class="guide-header" style="background: var(--teal-dark);">
+    <div>
+      <h2><i class="material-icons-round">contact_phone</i> Simpan Kontak Layanan</h2>
+    </div>
+    <button class="icon-btn-dark" onclick="tutupPopUpKontak()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
+  </div>
+  <div class="guide-body" style="padding: 20px 16px; text-align: center; background: #f8fafc;">
+    <div style="width: 64px; height: 64px; background: #d1fae5; color: #059669; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+      <i class="material-icons-round" style="font-size: 36px;">whatsapp</i>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--navy); margin-bottom: 20px; line-height: 1.5;">
+      Untuk mempermudah pengiriman form permohonan ke depannya, silakan simpan nomor WhatsApp <b>Layanan Rekom BBM Dinas Perikanan Cilacap</b> ke HP Anda.
+    </p>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button class="btn primary" style="background: #10b981; justify-content: center; font-size: 0.9rem;" onclick="unduhVCF()">
+        <i class="material-icons-round">person_add</i> Simpan Kontak Sekarang
+      </button>
+      <button class="btn secondary" style="background: transparent; color: var(--muted); border: none; justify-content: center; font-size: 0.8rem;" onclick="tutupPopUpKontak()">
+        Nanti Saja
+      </button>
+    </div>
+  </div>
+</div>
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
