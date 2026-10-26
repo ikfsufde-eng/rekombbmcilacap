@@ -8,6 +8,8 @@
   const SV = firebase.database.ServerValue.TIMESTAMP;
   let list = [], armed = false, nama = '', muted = new Set(), ringing = false, ctx = null, sirenT = null, titleT = null, bad = false;
   const au = new Audio('alarm.mp3'); au.loop = true; au.onerror = () => { bad = true; };
+  let viaAdmin = false; try { viaAdmin = Date.now() - Number(localStorage.getItem('fs_admin_ok')) < 12 * 3600 * 1000; } catch (e) {}
+  if (viaAdmin) $('pin').hidden = true;
   try { $('nama').value = localStorage.getItem('fs_' + D.role) || ''; } catch (e) {}
 
   function siren() {
@@ -19,7 +21,7 @@
   function alarmOff() { if (!ringing) return; ringing = false; au.pause(); au.currentTime = 0; clearInterval(sirenT); sirenT = null; clearInterval(titleT); document.title = D.title; }
 
   $('btnArm').onclick = async () => {
-    if ($('pin').value !== D.pin) { $('err').textContent = 'PIN salah'; return; }
+    if (!viaAdmin && $('pin').value !== D.pin) { $('err').textContent = 'PIN salah'; return; }
     nama = $('nama').value.trim(); if (nama.length < 2) { $('err').textContent = 'Isi nama Anda'; return; }
     try { localStorage.setItem('fs_' + D.role, nama); } catch (e) {}
     try { ctx = new (window.AudioContext || window.webkitAudioContext)(); await ctx.resume(); } catch (e) {}

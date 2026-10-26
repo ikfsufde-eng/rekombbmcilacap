@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="style.css?v=26">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -470,6 +470,13 @@
         <button class="btn primary sm" id="btnSaveApiUrl">Simpan</button>
       </div>
       <small class="adm-help">Jika diisi URL Google Apps Script, semua pengguna aplikasi akan otomatis menerima pengumuman dari Spreadsheet Anda.</small>
+      <hr class="adm-divider">
+      <div class="admin-section-title"><span>📹 Live Meet (Call Bantuan Teknis)</span></div>
+      <label class="lm-sw-wrap" id="admLmWrap"><input type="checkbox" id="admLmSw"><span class="lm-track"></span><span>Status Live Meet: <b id="admLmText">...</b></span></label>
+      <small class="adm-help" style="margin-bottom:8px;">ONLINE = pemohon bisa mengisi form dan masuk Google Meet. OFFLINE = ditolak.</small>
+      <a class="btn primary sm lm-link" href="dashboard-resepsionis.html" target="_blank" rel="noopener" style="background:#059669;">🟩 Buka Dashboard Resepsionis</a>
+      <a class="btn primary sm lm-link" href="dashboard-petugas.html" target="_blank" rel="noopener" style="background:#ea580c;">🟧 Buka Dashboard Petugas</a>
+      <small class="adm-help">Dashboard terbuka di tab baru (PIN Admin sudah cukup, tidak perlu PIN lagi). Di sana tekan "Masuk &amp; Aktifkan Alarm" lalu biarkan layar terbuka.</small>
     </div>
   </div>
 
@@ -690,6 +697,6 @@
 <div id="toast" role="status"></div>
 
 <script src="firebase-config.js?v=1"></script>
-<script src="app.js?v=25"></script>
+<script src="app.js?v=26"></script>
 </body>
 </html>

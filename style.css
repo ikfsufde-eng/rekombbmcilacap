@@ -1184,3 +1184,10 @@ body {
 /* ═══ LIVE MEET ═══ */
 .meet-badge{font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:99px;background:#e2e8f0;color:#475569;white-space:nowrap}
 .meet-badge.on{background:#dcfce7;color:#15803d}.meet-badge.off{background:#fee2e2;color:#b91c1c}
+
+.lm-sw-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.8rem;font-weight:800;background:#fff;color:var(--navy);border:1px solid #cbd5e1;padding:7px 12px;border-radius:99px;margin-bottom:6px}
+.lm-sw-wrap.on{background:#dcfce7;color:#15803d}.lm-sw-wrap input{display:none}
+.lm-track{width:42px;height:24px;border-radius:99px;background:#94a3b8;position:relative;transition:.2s;flex-shrink:0}
+.lm-track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+#admLmSw:checked+.lm-track{background:#10b981}#admLmSw:checked+.lm-track::after{left:21px}
+.lm-link{display:block;width:100%;text-align:center;text-decoration:none;color:#fff;margin-bottom:6px;box-sizing:border-box}

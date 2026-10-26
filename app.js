@@ -1580,4 +1580,21 @@ window.addEventListener('DOMContentLoaded', () => {
     if (w) w.location.href = LINK_GOOGLE_MEET; else window.location.href = LINK_GOOGLE_MEET;
   };
 
-  })();
+  
+  // ── Panel Admin: saklar status + izin masuk dashboard ──
+  async function muatSaklar() {
+    const st = await cekLayanan(), sw = $('admLmSw');
+    sw.checked = st === true; $('admLmWrap').classList.toggle('on', st === true);
+    $('admLmText').textContent = st === true ? 'ONLINE' : st === false ? 'OFFLINE' : (DB() ? 'tidak terbaca' : 'isi firebase-config.js');
+  }
+  $('admLmSw').onchange = async e => {
+    const on = e.target.checked;
+    try {
+      const r = await fetch(DB() + '/layanan.json', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ aktif: on, oleh: 'admin', ts: { '.sv': 'timestamp' } }) });
+      if (!r.ok) throw 0; toast(on ? '🟢 Live Meet ONLINE' : '⚪ Live Meet OFFLINE');
+    } catch (x) { e.target.checked = !on; toast('⚠️ Gagal menyimpan. Cek firebase-config.js & Rules'); }
+    muatSaklar();
+  };
+  $('btnAdminLogin').addEventListener('click', () => { if (isAdminUnlocked) { ls.set('fs_admin_ok', String(Date.now())); muatSaklar(); } });
+  $('btnAdminLogout').addEventListener('click', () => ls.set('fs_admin_ok', ''));
+})();
