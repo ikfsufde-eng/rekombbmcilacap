@@ -50,20 +50,39 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-function updateNetStatus() {
-  const badge = $('net-badge');
-  if (!badge) return;
-  if (navigator.onLine) {
-    badge.className = 'status-pill online';
-    badge.innerHTML = '<span class="dot"></span>Online';
-  } else {
-    badge.className = 'status-pill offline';
-    badge.innerHTML = '<span class="dot"></span>Offline';
-    toast('⚠️ Koneksi internet terputus (Mode Offline)');
+let netState = null;
+function setNet(state) { // 'online' | 'slow' | 'offline'
+  const badge = $('net-badge'); if (!badge) return;
+  const L = { online: 'Online', slow: 'Koneksi Lambat', offline: 'Tidak Konek' };
+  badge.className = 'status-pill ' + state;
+  badge.innerHTML = '<span class="dot"></span>' + L[state];
+  let bar = $('net-banner');
+  if (!bar) {
+    bar = document.createElement('div'); bar.id = 'net-banner'; bar.hidden = true;
+    bar.textContent = '⚠️ Tidak ada koneksi internet. Cek Status, Live Meet, FAQ terbaru, dan kirim WA tidak dapat dipakai sampai tersambung kembali.';
+    const hd = document.querySelector('.app-header'); if (hd) hd.after(bar);
   }
+  bar.hidden = state !== 'offline';
+  if (netState !== null && netState !== state) {
+    if (state === 'offline') toast('🔴 Tidak konek ke internet');
+    else if (state === 'slow') toast('🟠 Koneksi lambat');
+    else toast('✅ Kembali terhubung ke internet');
+  }
+  netState = state;
 }
-window.addEventListener('online', () => { updateNetStatus(); toast('✅ Kembali terhubung ke internet'); });
-window.addEventListener('offline', updateNetStatus);
+// Cek koneksi NYATA (navigator.onLine saja tidak cukup: WiFi tersambung tapi tanpa internet tetap dianggap online)
+async function updateNetStatus() {
+  if (!navigator.onLine) return setNet('offline');
+  const t0 = performance.now(), c = new AbortController(), to = setTimeout(() => c.abort(), 6000);
+  try {
+    await fetch('https://www.gstatic.com/generate_204', { mode: 'no-cors', cache: 'no-store', signal: c.signal });
+    clearTimeout(to); setNet(performance.now() - t0 > 3000 ? 'slow' : 'online');
+  } catch (e) { clearTimeout(to); setNet('offline'); }
+}
+window.addEventListener('online', updateNetStatus);
+window.addEventListener('offline', () => setNet('offline'));
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') updateNetStatus(); });
+setInterval(updateNetStatus, 15000);
 updateNetStatus();
 
 // ═══════════════════════════════════════════

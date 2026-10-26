@@ -1206,3 +1206,11 @@ body {
 .faq-adm-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .faq-adm-row button{border:0;background:#e2e8f0;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.72rem;font-weight:700}
 .faq-adm-row button.del{background:#fee2e2;color:#b91c1c}
+
+/* ═══ INDIKATOR KONEKSI ═══ */
+.status-pill.slow{background:rgba(245,158,11,.2);color:#fcd34d;border-color:rgba(245,158,11,.45)}
+.status-pill.slow .dot{background:#f59e0b}
+.status-pill.offline .dot{animation:netBlink 1s infinite}
+@keyframes netBlink{50%{opacity:.25}}
+#net-banner{flex-shrink:0;background:#e11d48;color:#fff;font-size:.78rem;font-weight:700;text-align:center;padding:7px 12px;line-height:1.35;z-index:19}
+#net-banner[hidden]{display:none}
