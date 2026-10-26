@@ -591,25 +591,35 @@ function renderNotifs() {
         <p>${n.body}</p>
         <span class="notif-time">${n.time}</span>
       </div>
-      ${isAdminUnlocked ? `<button class="notif-del-btn" data-del="${n.id}" title="Hapus"><i class="material-icons-round" style="font-size:18px;">delete</i></button>` : ''}
+      <button class="notif-del-btn" data-del="${n.id}" title="Hapus Permanen"><i class="material-icons-round" style="font-size:18px;">delete</i></button>
     </div>
   `).join('');
 
-  if (isAdminUnlocked) {
-    $('notif-list').querySelectorAll('.notif-del-btn').forEach(btn => {
-      btn.onclick = e => {
-        e.stopPropagation();
-        const id = btn.dataset.del;
-        saveNotifs(getNotifs().filter(x => x.id !== id));
-        toast('Pengumuman dihapus');
-      };
-    });
-  }
+  $('notif-list').querySelectorAll('.notif-del-btn').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const id = btn.dataset.del;
+      saveNotifs(getNotifs().filter(x => x.id !== id));
+      
+      // Simpan ID ke daftar blokir agar tidak ditarik lagi dari server
+      const blockList = JSON.parse(localStorage.getItem('fuelstar_notif_blocked') || '[]');
+      if (!blockList.includes(id)) {
+        blockList.push(id);
+        localStorage.setItem('fuelstar_notif_blocked', JSON.stringify(blockList));
+      }
+      
+      toast('Pengumuman dihapus permanen');
+    };
+  });
 }
 
 function addAppNotification(title, body, icon = 'campaign', customId = null, customTime = null) {
   const list = getNotifs();
   const id = customId || ('n_' + Date.now());
+  
+  const blockList = JSON.parse(localStorage.getItem('fuelstar_notif_blocked') || '[]');
+  if (blockList.includes(id)) return; // Tolak jika ID sudah dihapus permanen oleh pengguna
+
   if (list.some(x => x.id === id)) return; // Hindari duplikat jika sinkron dari server
 
   const time = customTime || (new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' · ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB');
@@ -633,10 +643,21 @@ async function syncRemoteNotifications(showFeedback = false) {
     const data = await res.json();
     if (Array.isArray(data.notifications)) {
       let added = 0;
-      const current = getNotifs();
+      let current = getNotifs();
+      const blockList = JSON.parse(localStorage.getItem('fuelstar_notif_blocked') || '[]');
+
+      // Sinkronisasi Penghapusan: Hapus notifikasi di HP yang sudah tidak ada di server database (kecuali default n1 & n2)
+      const serverIds = data.notifications.map(n => String(n.id));
+      const filteredCurrent = current.filter(n => serverIds.includes(n.id) || n.id === 'n1' || n.id === 'n2');
+      if (current.length !== filteredCurrent.length) {
+        saveNotifs(filteredCurrent);
+        current = filteredCurrent; // Perbarui state variabel lokal
+      }
+
       data.notifications.forEach(item => {
-        if (item.id && !current.some(x => x.id === String(item.id))) {
-          addAppNotification(item.title, item.body, item.icon || 'campaign', String(item.id), item.time);
+        const strId = String(item.id);
+        if (item.id && !current.some(x => x.id === strId) && !blockList.includes(strId)) {
+          addAppNotification(item.title, item.body, item.icon || 'campaign', strId, item.time);
           added++;
         }
       });
