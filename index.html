@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -477,6 +477,18 @@
       <a class="btn primary sm lm-link" href="dashboard-resepsionis.html" target="_blank" rel="noopener" style="background:#059669;">🟩 Buka Dashboard Resepsionis</a>
       <a class="btn primary sm lm-link" href="dashboard-petugas.html" target="_blank" rel="noopener" style="background:#ea580c;">🟧 Buka Dashboard Petugas</a>
       <small class="adm-help">Dashboard terbuka di tab baru (PIN Admin sudah cukup, tidak perlu PIN lagi). Di sana tekan "Masuk &amp; Aktifkan Alarm" lalu biarkan layar terbuka.</small>
+      <hr class="adm-divider">
+      <div class="admin-section-title"><span>❓ Kelola Petunjuk Teknis &amp; FAQ</span></div>
+      <input type="text" id="faq-kat" class="adm-input" maxlength="40" placeholder="Kategori (cth: Syarat Dokumen, Alur Layanan)" list="faq-kat-list">
+      <datalist id="faq-kat-list"></datalist>
+      <input type="text" id="faq-tanya" class="adm-input" maxlength="200" placeholder="Pertanyaan / judul petunjuk">
+      <textarea id="faq-jawab" class="adm-input" rows="5" maxlength="3000" placeholder="Jawaban / isi petunjuk (boleh beberapa baris; link http(s) otomatis bisa diklik)"></textarea>
+      <div class="admin-row">
+        <button class="btn accent sm" id="btnFaqSave"><i class="material-icons-round">add</i> Tambah FAQ</button>
+        <button class="btn secondary sm" id="btnFaqCancel" hidden>Batal</button>
+      </div>
+      <div id="faq-admin-list" style="margin-top:8px;"></div>
+      <small class="adm-help">FAQ langsung tampil untuk semua pengguna di Pusat Bantuan → Petunjuk Teknis &amp; FAQ. Kosong = tampil "belum ada FAQ".</small>
     </div>
   </div>
 
@@ -632,6 +644,14 @@
 
  <div class="guide-body" style="padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;">
     
+    <!-- Pilihan 0: Petunjuk Teknis & FAQ -->
+    <button style="width: 100%; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(15,37,87,0.03);" onclick="tutupKontak(); bukaFaq()">
+      <div style="font-size: 0.9rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px;">
+        <i class="material-icons-round" style="color: #f59e0b; font-size: 20px;">quiz</i> Petunjuk Teknis &amp; FAQ
+      </div>
+      <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; margin-left: 28px; margin-top: 4px;">Syarat, alur layanan, dan pertanyaan yang sering diajukan</div>
+    </button>
+
     <!-- Pilihan 1: Resepsionis -->
     <button style="width: 100%; text-align: left; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(15,37,87,0.03);" onclick="bukaLayanan('resepsionis')">
       <div style="font-size: 0.9rem; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px;">
@@ -693,10 +713,26 @@
   </div>
 </div>
 
+<!-- MODAL PETUNJUK TEKNIS & FAQ -->
+<div id="faq-backdrop" class="backdrop" hidden onclick="tutupFaq()"></div>
+<div id="faq-modal" class="guide-modal" style="width: min(480px, 95vw);" hidden>
+  <div class="guide-header" style="background: var(--navy);">
+    <div>
+      <h2><i class="material-icons-round">quiz</i> Petunjuk Teknis &amp; FAQ</h2>
+      <p>Fuel Star W.A · Pelayanan Rekomendasi BBM</p>
+    </div>
+    <button class="icon-btn-dark" onclick="tutupFaq()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
+  </div>
+  <div class="guide-body" style="padding: 14px; background: #f8fafc; display:flex; flex-direction:column; gap:10px;">
+    <input type="search" id="faq-cari" class="adm-input" placeholder="🔎 Cari pertanyaan…" style="margin-bottom:0;">
+    <div id="faq-list"></div>
+  </div>
+</div>
+
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
 <script src="firebase-config.js?v=1"></script>
-<script src="app.js?v=26"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

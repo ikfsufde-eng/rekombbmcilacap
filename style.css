@@ -1191,3 +1191,18 @@ body {
 .lm-track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
 #admLmSw:checked+.lm-track{background:#10b981}#admLmSw:checked+.lm-track::after{left:21px}
 .lm-link{display:block;width:100%;text-align:center;text-decoration:none;color:#fff;margin-bottom:6px;box-sizing:border-box}
+
+/* ═══ FAQ ═══ */
+.faq-kat{font-size:.68rem;font-weight:800;letter-spacing:.06em;color:#64748b;text-transform:uppercase;margin:10px 2px 4px}
+.faq-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:6px;overflow:hidden}
+.faq-item summary{cursor:pointer;padding:11px 14px;font-weight:700;font-size:.85rem;color:var(--navy);list-style:none}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::before{content:"＋";margin-right:8px;color:#2563eb}
+.faq-item[open] summary::before{content:"－"}
+.faq-ans{padding:0 14px 12px;font-size:.82rem;line-height:1.55;color:#334155;white-space:pre-wrap;word-break:break-word}
+.faq-ans a{color:#2563eb;text-decoration:underline}
+.faq-empty{text-align:center;color:#64748b;font-size:.85rem;padding:26px 8px;line-height:1.5}
+.faq-adm-row{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px;margin-bottom:5px;font-size:.74rem}
+.faq-adm-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.faq-adm-row button{border:0;background:#e2e8f0;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.72rem;font-weight:700}
+.faq-adm-row button.del{background:#fee2e2;color:#b91c1c}

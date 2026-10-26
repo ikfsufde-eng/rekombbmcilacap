@@ -1597,4 +1597,69 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   $('btnAdminLogin').addEventListener('click', () => { if (isAdminUnlocked) { ls.set('fs_admin_ok', String(Date.now())); muatSaklar(); } });
   $('btnAdminLogout').addEventListener('click', () => ls.set('fs_admin_ok', ''));
+
+  // ═════════ FAQ / PETUNJUK TEKNIS (disimpan di Firebase /faq, dikelola dari Panel Admin) ═════════
+  const mk = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+  let faqData = [], faqEdit = null;
+  function linkify(node, text) { // aman: hanya link http(s), sisanya teks biasa
+    text.split(/(https?:\/\/[^\s]+)/g).forEach(p => {
+      if (/^https?:\/\//.test(p)) { const a = mk('a', '', p); a.href = p; a.target = '_blank'; a.rel = 'noopener'; node.append(a); }
+      else node.append(document.createTextNode(p));
+    });
+  }
+  async function muatFaq() {
+    try { faqData = JSON.parse(ls.get('fs_faq') || '[]'); } catch (e) { faqData = []; }
+    renderFaq();
+    if (!DB()) return;
+    try {
+      const r = await fetch(DB() + '/faq.json', { cache: 'no-store' }); if (!r.ok) throw 0;
+      const o = (await r.json()) || {};
+      faqData = Object.keys(o).map(id => Object.assign({ id }, o[id])).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      ls.set('fs_faq', JSON.stringify(faqData));
+    } catch (e) {}
+    renderFaq(); renderFaqAdmin();
+  }
+  function renderFaq() {
+    const box = $('faq-list'); if (!box) return; box.innerHTML = '';
+    const q = ($('faq-cari').value || '').trim().toLowerCase();
+    const rows = faqData.filter(f => !q || (f.tanya + ' ' + f.jawab + ' ' + (f.kategori || '')).toLowerCase().includes(q));
+    if (!rows.length) { box.append(mk('div', 'faq-empty', faqData.length ? 'Tidak ada hasil untuk pencarian ini.' : '📭 Petunjuk teknis & FAQ belum diisi. Silakan hubungi Resepsionis lewat menu Pusat Bantuan.')); return; }
+    let last = null;
+    rows.forEach(f => {
+      const kat = f.kategori || 'Umum';
+      if (kat !== last) { box.append(mk('div', 'faq-kat', kat)); last = kat; }
+      const d = mk('details', 'faq-item'); d.append(mk('summary', '', f.tanya));
+      const a = mk('div', 'faq-ans'); linkify(a, f.jawab); d.append(a); box.append(d);
+    });
+  }
+  window.bukaFaq = function () { $('faq-modal').hidden = false; $('faq-backdrop').hidden = false; $('faq-cari').value = ''; muatFaq(); };
+  window.tutupFaq = function () { $('faq-modal').hidden = true; $('faq-backdrop').hidden = true; };
+  $('faq-cari').addEventListener('input', renderFaq);
+
+  // ── Admin: tambah / ubah / hapus ──
+  function renderFaqAdmin() {
+    const box = $('faq-admin-list'); if (!box) return; box.innerHTML = '';
+    $('faq-kat-list').innerHTML = ''; [...new Set(faqData.map(f => f.kategori).filter(Boolean))].forEach(k => { const o = document.createElement('option'); o.value = k; $('faq-kat-list').append(o); });
+    faqData.forEach(f => {
+      const r = mk('div', 'faq-adm-row'); r.append(mk('span', '', (f.kategori ? '[' + f.kategori + '] ' : '') + f.tanya));
+      const e = mk('button', '', 'Edit'), x = mk('button', 'del', 'Hapus');
+      e.onclick = () => { faqEdit = f; $('faq-kat').value = f.kategori || ''; $('faq-tanya').value = f.tanya; $('faq-jawab').value = f.jawab; $('btnFaqSave').lastChild.textContent = ' Simpan Perubahan'; $('btnFaqCancel').hidden = false; $('faq-tanya').focus(); };
+      x.onclick = async () => { if (!confirm('Hapus FAQ ini?')) return; try { const rs = await fetch(DB() + '/faq/' + f.id + '.json', { method: 'DELETE' }); if (!rs.ok) throw 0; toast('🗑️ FAQ dihapus'); } catch (er) { toast('⚠️ Gagal menghapus'); } muatFaq(); };
+      r.append(e, x); box.append(r);
+    });
+    if (!faqData.length) box.append(mk('small', 'adm-help', 'Belum ada FAQ. Isi form di atas lalu tekan Tambah.'));
+  }
+  function resetFaqForm() { faqEdit = null; ['faq-kat', 'faq-tanya', 'faq-jawab'].forEach(i => $(i).value = ''); $('btnFaqSave').lastChild.textContent = ' Tambah FAQ'; $('btnFaqCancel').hidden = true; }
+  $('btnFaqCancel').onclick = resetFaqForm;
+  $('btnFaqSave').onclick = async () => {
+    const tanya = $('faq-tanya').value.trim(), jawab = $('faq-jawab').value.trim(), kategori = $('faq-kat').value.trim();
+    if (tanya.length < 3 || jawab.length < 3) { toast('⚠️ Isi pertanyaan dan jawaban'); return; }
+    if (!DB()) { toast('⚠️ Isi firebase-config.js terlebih dahulu'); return; }
+    const body = { tanya, jawab, ts: faqEdit ? faqEdit.ts : Date.now() }; if (kategori) body.kategori = kategori;
+    try {
+      const rs = await fetch(DB() + (faqEdit ? '/faq/' + faqEdit.id + '.json' : '/faq.json'), { method: faqEdit ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!rs.ok) throw 0; toast(faqEdit ? '✅ FAQ diperbarui' : '✅ FAQ ditambahkan'); resetFaqForm(); muatFaq();
+    } catch (e) { toast('⚠️ Gagal menyimpan. Cek Rules Firebase (sudah Publish versi terbaru?)'); }
+  };
+  $('btnAdminLogin').addEventListener('click', () => { if (isAdminUnlocked) muatFaq(); });
 })();
