@@ -1703,3 +1703,59 @@ window.addEventListener('DOMContentLoaded', () => {
   };
   $('btnAdminLogin').addEventListener('click', () => { if (isAdminUnlocked) muatFaq(); });
 })();
+
+// ═══════════════════════════════════════════
+//  FITUR SIMPAN KONTAK (vCard) SAAT PERTAMA DIBUKA
+// ═══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Munculkan pop-up kontak setelah jeda 1.5 detik jika belum pernah disingkirkan
+  setTimeout(() => {
+    try {
+      if (!localStorage.getItem('fuelstar_contact_saved')) {
+        const bd = $('contact-save-backdrop');
+        const md = $('contact-save-modal');
+        if(bd && md) { bd.hidden = false; md.hidden = false; }
+      }
+    } catch(e) {}
+  }, 1500); 
+});
+
+function tutupPopUpKontak() {
+  if ($('contact-save-backdrop')) $('contact-save-backdrop').hidden = true;
+  if ($('contact-save-modal')) $('contact-save-modal').hidden = true;
+  // Catat di memori browser agar tidak muncul lagi terus-terusan
+  try { localStorage.setItem('fuelstar_contact_saved', '1'); } catch(e) {}
+}
+
+function unduhVCF() {
+  // Format vCard untuk 2 kontak yang terpisah
+  const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:Layanan Rekom BBM (Sistem)
+ORG:Dinas Perikanan Kab. Cilacap
+TEL;TYPE=CELL,VOICE,wa:+6285156260107
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:Resepsionis Rekom BBM
+ORG:Dinas Perikanan Kab. Cilacap
+TEL;TYPE=WORK,VOICE,wa:+6287730601432
+END:VCARD`;
+
+  // Proses pembuatan file statis sementara (Blob) di dalam memori browser
+  const blob = new Blob([vcard], { type: 'text/vcard' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Kontak_Rekom_BBM.vcf';
+  document.body.appendChild(a);
+  a.click();
+  
+  // Bersihkan kembali memori
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  toast('✅ Berhasil diunduh. Silakan buka file untuk menyimpan 2 kontak.');
+  tutupPopUpKontak();
+}
