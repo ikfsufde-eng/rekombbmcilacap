@@ -807,7 +807,18 @@
 <!-- TOAST POPUP -->
 <div id="toast" role="status"></div>
 
-<script src="firebase-config.js?v=3"></script>
-<script src="app.js?v=31"></script>
+<!-- Mesin Utama Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<!-- Mesin Realtime Database Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script src="firebase-config.js?v=4"></script>
+<script>
+  // Menyalakan mesin Firebase
+  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
+</script>
+<script src="app.js?v=32"></script>
 </body>
 </html>
