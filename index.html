@@ -32,7 +32,7 @@
     <div class="brand-text">
       <div class="title-row">
         <h1 id="app-title">Cek Status</h1>
-        <span id="net-badge" class="status-pill online"><span class="dot"></span>Online</span>
+        <span id="net-badge" class="status-pill online" onclick="bukaStatistik()" style="cursor: pointer; transition: transform 0.2s;" title="Klik untuk lihat statistik pengunjung"><span class="dot"></span>Online</span>
       </div>
       <p>Fuel Star W.A · Pelayanan Rekomendasi BBM Perikanan</p>
     </div>
@@ -758,6 +758,50 @@
         Nanti Saja
       </button>
     </div>
+  </div>
+</div>
+<!-- MODAL STATISTIK KUNJUNGAN -->
+<div id="stats-backdrop" class="backdrop" hidden onclick="tutupStatistik()"></div>
+<div id="stats-modal" class="guide-modal" style="width: min(380px, 92vw);" hidden>
+  <div class="guide-header" style="background: var(--navy);">
+    <div>
+      <h2><i class="material-icons-round">analytics</i> Statistik Pengunjung</h2>
+      <p>Data lalu lintas aplikasi Fuel Star W.A</p>
+    </div>
+    <button class="icon-btn-dark" onclick="tutupStatistik()" aria-label="Tutup"><i class="material-icons-round">close</i></button>
+  </div>
+  <div class="guide-body" style="padding: 16px; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+    
+    <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      <i class="material-icons-round" style="font-size: 36px; color: #10b981; margin-bottom: 6px;">groups</i>
+      <div style="font-size: 0.8rem; color: var(--muted); font-weight: 600;">Sedang Online Saat Ini</div>
+      <div id="stat-online" style="font-size: 2.2rem; font-weight: 800; color: var(--navy); line-height: 1.1;">--</div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div style="background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Hari Ini</div>
+        <div id="stat-hari" style="font-size: 1.3rem; font-weight: 800; color: var(--blue);">--</div>
+      </div>
+      <div style="background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">7 Hari Terakhir</div>
+        <div id="stat-minggu" style="font-size: 1.3rem; font-weight: 800; color: var(--blue);">--</div>
+      </div>
+      <div style="background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Bulan Ini</div>
+        <div id="stat-bulan" style="font-size: 1.3rem; font-weight: 800; color: var(--blue);">--</div>
+      </div>
+      <div style="background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+        <div style="font-size: 0.7rem; color: var(--muted); font-weight: 600;">Tahun Ini</div>
+        <div id="stat-tahun" style="font-size: 1.3rem; font-weight: 800; color: var(--blue);">--</div>
+      </div>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, var(--teal-dark), #0284c7); padding: 14px; border-radius: 12px; text-align: center; color: #fff; margin-top: 4px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);">
+      <div style="font-size: 0.75rem; font-weight: 600;">Total Semua Kunjungan</div>
+      <div id="stat-total" style="font-size: 1.6rem; font-weight: 800;">--</div>
+    </div>
+
   </div>
 </div>
 <!-- TOAST POPUP -->
