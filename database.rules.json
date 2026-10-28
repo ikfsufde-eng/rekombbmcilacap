@@ -78,6 +78,14 @@
           ".validate": false
         }
       }
+    },
+    "status_online": {
+      ".read": true,
+      ".write": true
+    },
+    "statistik": {
+      ".read": true,
+      ".write": true
     }
   }
 }
