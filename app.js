@@ -42,6 +42,12 @@ function playBeep(freq = 880, duration = 120) {
 // ═══════════════════════════════════════════
 //  JAM REALTIME & INDIKATOR KONEKSI
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  JAM REALTIME, KONEKSI & STATISTIK PENGUNJUNG
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  JAM REALTIME, KONEKSI & STATISTIK PENGUNJUNG
+// ═══════════════════════════════════════════
 function updateClock() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -51,11 +57,14 @@ setInterval(updateClock, 1000);
 updateClock();
 
 let netState = null;
-function setNet(state) { // 'online' | 'slow' | 'offline'
+let totalUserOnline = 1;
+
+function setNet(state) {
   const badge = $('net-badge'); if (!badge) return;
-  const L = { online: 'Online', slow: 'Koneksi Lambat', offline: 'Tidak Konek' };
+  const L = { online: `${totalUserOnline} Aktif`, slow: 'Koneksi Lambat', offline: 'Tidak Konek' };
   badge.className = 'status-pill ' + state;
   badge.innerHTML = '<span class="dot"></span>' + L[state];
+  
   let bar = $('net-banner');
   if (!bar) {
     bar = document.createElement('div'); bar.id = 'net-banner'; bar.hidden = true;
@@ -63,6 +72,7 @@ function setNet(state) { // 'online' | 'slow' | 'offline'
     const hd = document.querySelector('.app-header'); if (hd) hd.after(bar);
   }
   bar.hidden = state !== 'offline';
+  
   if (netState !== null && netState !== state) {
     if (state === 'offline') toast('🔴 Tidak konek ke internet');
     else if (state === 'slow') toast('🟠 Koneksi lambat');
@@ -70,7 +80,8 @@ function setNet(state) { // 'online' | 'slow' | 'offline'
   }
   netState = state;
 }
-// Cek koneksi NYATA (navigator.onLine saja tidak cukup: WiFi tersambung tapi tanpa internet tetap dianggap online)
+
+// Cek koneksi NYATA ke server Google
 async function updateNetStatus() {
   if (!navigator.onLine) return setNet('offline');
   const t0 = performance.now(), c = new AbortController(), to = setTimeout(() => c.abort(), 6000);
@@ -84,6 +95,105 @@ window.addEventListener('offline', () => setNet('offline'));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') updateNetStatus(); });
 setInterval(updateNetStatus, 15000);
 updateNetStatus();
+
+// Menjalankan sensor Firebase Presence & Pencatat Kunjungan Otomatis
+setTimeout(() => {
+  if (typeof firebase !== 'undefined' && firebase.database) {
+    const db = firebase.database();
+    const onlineRef = db.ref('status_online');
+    const statRef = db.ref('statistik');
+    const connectedRef = db.ref('.info/connected');
+    
+    // 1. PRESENCE (ONLINE COUNTER)
+    const sessionId = 'user_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    const myUserRef = onlineRef.child(sessionId);
+    
+    connectedRef.on('value', (snap) => {
+      if (snap.val() === true) {
+        myUserRef.onDisconnect().remove();
+        myUserRef.set(true);
+      }
+    });
+    
+    onlineRef.on('value', (snap) => {
+      totalUserOnline = snap.numChildren() || 1;
+      if (netState === 'online') {
+        const badge = $('net-badge');
+        if (badge) badge.innerHTML = `<span class="dot"></span>${totalUserOnline} Aktif`;
+      }
+      if($('stat-online')) $('stat-online').textContent = totalUserOnline;
+    });
+
+    // 2. VISITOR COUNTER (Hari, Bulan, Tahun)
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    
+    const hariIni = `${yyyy}-${mm}-${dd}`;
+    const bulanIni = `${yyyy}-${mm}`;
+    const tahunIni = `${yyyy}`;
+
+    try {
+      if (localStorage.getItem('fuelstar_last_visit') !== hariIni) {
+        localStorage.setItem('fuelstar_last_visit', hariIni);
+        statRef.child('harian').child(hariIni).set(firebase.database.ServerValue.increment(1));
+        statRef.child('bulanan').child(bulanIni).set(firebase.database.ServerValue.increment(1));
+        statRef.child('tahunan').child(tahunIni).set(firebase.database.ServerValue.increment(1));
+        statRef.child('total').set(firebase.database.ServerValue.increment(1));
+      }
+    } catch(e) {}
+  }
+}, 2500);
+
+// FUNGSI POP-UP & KALKULASI STATISTIK
+window.bukaStatistik = async function() {
+  if ($('stats-backdrop')) $('stats-backdrop').hidden = false;
+  if ($('stats-modal')) $('stats-modal').hidden = false;
+  if ($('stat-online')) $('stat-online').textContent = totalUserOnline;
+  
+  try {
+     const db = firebase.database();
+     const snap = await db.ref('statistik').once('value');
+     const data = snap.val() || {};
+     
+     const d = new Date();
+     const yyyy = d.getFullYear();
+     const mm = String(d.getMonth() + 1).padStart(2, '0');
+     const dd = String(d.getDate()).padStart(2, '0');
+     
+     const hariIni = `${yyyy}-${mm}-${dd}`;
+     const bulanIni = `${yyyy}-${mm}`;
+     const tahunIni = `${yyyy}`;
+     
+     let mingguIni = 0;
+     for (let i = 0; i < 7; i++) {
+        const past = new Date(d);
+        past.setDate(d.getDate() - i);
+        const py = past.getFullYear();
+        const pm = String(past.getMonth() + 1).padStart(2, '0');
+        const pd = String(past.getDate()).padStart(2, '0');
+        const pDate = `${py}-${pm}-${pd}`;
+        if (data.harian && data.harian[pDate]) {
+           mingguIni += data.harian[pDate];
+        }
+     }
+
+     if($('stat-hari')) $('stat-hari').textContent = (data.harian && data.harian[hariIni]) ? data.harian[hariIni] : 1;
+     if($('stat-minggu')) $('stat-minggu').textContent = mingguIni || 1;
+     if($('stat-bulan')) $('stat-bulan').textContent = (data.bulanan && data.bulanan[bulanIni]) ? data.bulanan[bulanIni] : 1;
+     if($('stat-tahun')) $('stat-tahun').textContent = (data.tahunan && data.tahunan[tahunIni]) ? data.tahunan[tahunIni] : 1;
+     if($('stat-total')) $('stat-total').textContent = data.total || 1;
+     
+  } catch(e) {
+     toast('⚠️ Gagal menarik data statistik dari server');
+  }
+};
+
+window.tutupStatistik = function() {
+  if ($('stats-backdrop')) $('stats-backdrop').hidden = true;
+  if ($('stats-modal')) $('stats-modal').hidden = true;
+};
 
 // ═══════════════════════════════════════════
 //  NAVIGASI TAB PANEL
