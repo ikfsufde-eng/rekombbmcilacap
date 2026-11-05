@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=33">
+<link rel="stylesheet" href="style.css?v=34">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -76,9 +76,12 @@
   <!-- TAB TENGAH (TOMBOL BULAT BESAR): PENGAJUAN -->
   <section id="tab-pengajuan" class="panel" style="overflow-y: auto; background: var(--bg); padding: 16px;">
     <div class="form-card">
-      <div class="form-header">
-        <h2><i class="material-icons-round">edit_document</i> Form Rekomendasi BBM</h2>
-        <p id="form-subtitle">ISIIkan5 form permohonan rekom bbm berikut (ganti tanda xxx dengan data anda) :</p>
+      <div class="form-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <h2><i class="material-icons-round">edit_document</i> Form Rekomendasi BBM</h2>
+          <p id="form-subtitle">ISIIkan5 form permohonan rekom bbm berikut (ganti tanda xxx dengan data anda) :</p>
+        </div>
+        <button class="btn accent sm" onclick="openGuideModal('alur')" style="flex-shrink: 0; background: #059669; border: none; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);"><i class="material-icons-round" style="font-size: 16px;">route</i> Alur Pengajuan</button>
       </div>
 
       <div class="bbm-tabs">
@@ -509,8 +512,9 @@
 
   <!-- Tab Pilihan di dalam Modal -->
   <div class="guide-tabs">
-    <button class="guide-tab active" id="gtab-demo" onclick="switchGuideTab('demo')">✨ Tur Fitur (Demo)</button>
-    <button class="guide-tab" id="gtab-install" onclick="switchGuideTab('install')">📲 Cara Instal Aplikasi</button>
+    <button class="guide-tab active" id="gtab-demo" onclick="switchGuideTab('demo')">✨ Tur Fitur</button>
+    <button class="guide-tab" id="gtab-alur" onclick="switchGuideTab('alur')">📋 Alur Pengajuan</button>
+    <button class="guide-tab" id="gtab-install" onclick="switchGuideTab('install')">📲 Cara Instal</button>
   </div>
 
   <!-- KONTEN 1: PENGENALAN / TUR FITUR APLIKASI -->
@@ -561,7 +565,74 @@
       </div>
     </div>
   </div>
+  <!-- KONTEN BARU: ALUR PENGAJUAN -->
+  <div class="guide-body" id="gcontent-alur" style="display:none; padding: 12px;">
+    <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
+      <button id="btn-alur-pertalite" onclick="pilihAlur('pertalite')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: #fff; font-weight: 700; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;">⛽ Alur Pertalite</button>
+      <button id="btn-alur-solar" onclick="pilihAlur('solar')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: transparent; font-weight: 700; color: #64748b; cursor: pointer;">🚢 Alur Solar</button>
+    </div>
 
+    <!-- ALUR PERTALITE -->
+    <div id="alur-pertalite" style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="guide-step">
+        <div class="step-icon" style="background:#dbeafe;color:#2563eb;">1</div>
+        <div class="step-info">
+          <h4>Isi Form & Simpan</h4>
+          <p>Isi form lalu simpan ke database/simpan sendiri untuk digunakan selanjutnya.</p>
+          <button class="btn accent sm" onclick="tryFeature('tab-pengajuan')" style="margin-top: 6px;">Ke Form Pengajuan</button>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="step-icon" style="background:#dcfce7;color:#16a34a;">2</div>
+        <div class="step-info">
+          <h4>Kirim Pengajuan ke WA</h4>
+          <p>Kirim pengajuan ke nomor WA-nya. Data di-record system, Anda akan mendapat balasan server "Terimakasih" dan link untuk upload berkas permohonan.</p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="step-icon" style="background:#fef9c3;color:#ca8a04;">3</div>
+        <div class="step-info">
+          <h4>Siapkan File PDF (Maksimal 1 MB)</h4>
+          <ol style="margin-left: 14px; font-size: 0.75rem; color: var(--muted); margin-top: 4px; line-height: 1.4;">
+            <li>Surat permohonan, KTP, Kusuka.</li>
+            <li>Gabungan pas kecil + eBKP.</li>
+            <li>Foto selfie samping kalender menunjuk sesuai bulan pengajuan.</li>
+            <li><b>Khusus perpanjangan:</b> Rekom terakhir + lampiran tabel yang sudah diisi pom bensin pengisian sebelumnya.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="step-icon" style="background:#e0e7ff;color:#4f46e5;">4</div>
+        <div class="step-info">
+          <h4>Cek Status Permohonan</h4>
+          <p>Jika berhasil akan keluar "Sedang diverifikasi". Jika ada catatan, perbaiki sesuai catatan. Cek status permohonan berkala, atau rekom yang jadi akan dikirim melalui WA ke nomor pemohon yang didaftarkan.</p>
+          <button class="btn primary sm" onclick="tryFeature('tab1')" style="margin-top: 6px;">Buka Cek Status</button>
+        </div>
+      </div>
+      <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px; font-size: 0.72rem; color: #991b1b; border-radius: 0 8px 8px 0;">
+        <b>NB:</b> Jika 1 NIK ada lebih dari 1 kapal, ulangi proses sebelumnya untuk semua kapal.
+      </div>
+    </div>
+
+    <!-- ALUR SOLAR -->
+    <div id="alur-solar" style="display: none; flex-direction: column; gap: 12px;">
+      <div class="guide-step">
+        <div class="step-icon" style="background:#dbeafe;color:#2563eb;">1</div>
+        <div class="step-info">
+          <h4>Buat / Update Berkas Digital</h4>
+          <p>Buat atau update kelengkapan berkas digital kapal Anda di menu sistem.</p>
+          <button class="btn primary sm" onclick="tryFeature('tab3')" style="margin-top: 6px;">Buka Berkas Digital</button>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="step-icon" style="background:#fef9c3;color:#ca8a04;">2</div>
+        <div class="step-info">
+          <h4>Bawa Berkas Fisik & Digital</h4>
+          <p>Bawa Berkas Digital, Rekom terakhir beserta lampiran tabel, dan Surat Permohonan fisiknya ke petugas dinas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- KONTEN 2: PANDUAN INSTALASI -->
   <div class="guide-body" id="gcontent-install" style="display:none;">
     <!-- Box Instal Otomatis (Muncul jika browser mendukung) -->
