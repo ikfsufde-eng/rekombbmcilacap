@@ -1354,14 +1354,33 @@ function closeGuideModal() {
   try { localStorage.setItem('fuelstar_guide_seen', '1'); } catch (e) {}
 }
 
+// Navigasi Tab di Modal Panduan
 function switchGuideTab(tab) {
-  const isDemo = (tab === 'demo');
-  $('gtab-demo').classList.toggle('active', isDemo);
-  $('gtab-install').classList.toggle('active', !isDemo);$('gcontent-demo').style.display = isDemo ? 'flex' : 'none';
-  $('gcontent-install').style.display = isDemo ? 'none' : 'flex';
-  if (!isDemo) runInstallDiagnostics();
+  ['demo', 'alur', 'install'].forEach(t => {
+    const isTab = (tab === t);
+    const btn = $('gtab-' + t);
+    const cnt = $('gcontent-' + t);
+    if (btn) btn.classList.toggle('active', isTab);
+    if (cnt) cnt.style.display = isTab ? (t === 'demo' ? 'flex' : 'block') : 'none';
+  });
+  if (tab === 'install') runInstallDiagnostics();
 }
 
+// Navigasi Sub-Tab Alur Pengajuan (Pertalite vs Solar)
+window.pilihAlur = function(jenis) {
+  const btnP = $('btn-alur-pertalite'), btnS = $('btn-alur-solar');
+  const divP = $('alur-pertalite'), divS = $('alur-solar');
+  
+  if (jenis === 'pertalite') {
+    btnP.style.background = '#fff'; btnP.style.color = '#0284c7'; btnP.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    btnS.style.background = 'transparent'; btnS.style.color = '#64748b'; btnS.style.boxShadow = 'none';
+    divP.style.display = 'flex'; divS.style.display = 'none';
+  } else {
+    btnS.style.background = '#fff'; btnS.style.color = '#0284c7'; btnS.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    btnP.style.background = 'transparent'; btnP.style.color = '#64748b'; btnP.style.boxShadow = 'none';
+    divS.style.display = 'flex'; divP.style.display = 'none';
+  }
+};
 function tryFeature(tabId) {
   closeGuideModal();
   switchTab(tabId);
