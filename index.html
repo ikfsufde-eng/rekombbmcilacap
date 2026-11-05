@@ -566,14 +566,14 @@
     </div>
   </div>
   <!-- KONTEN BARU: ALUR PENGAJUAN -->
-  <div class="guide-body" id="gcontent-alur" style="display:none; padding: 12px;">
-    <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
-      <button id="btn-alur-pertalite" onclick="pilihAlur('pertalite')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: #fff; font-weight: 700; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;">⛽ Alur Pertalite</button>
-      <button id="btn-alur-solar" onclick="pilihAlur('solar')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: transparent; font-weight: 700; color: #64748b; cursor: pointer;">🚢 Alur Solar</button>
+  <div class="guide-body" id="gcontent-alur" style="display:none;">
+    <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 12px; flex-shrink: 0;">
+      <button id="btn-alur-pertalite" onclick="pilihAlur('pertalite')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: #fff; font-weight: 700; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; font-size: 0.8rem;">⛽ Alur Pertalite</button>
+      <button id="btn-alur-solar" onclick="pilihAlur('solar')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: transparent; font-weight: 700; color: #64748b; cursor: pointer; font-size: 0.8rem;">🚢 Alur Solar</button>
     </div>
 
     <!-- ALUR PERTALITE -->
-    <div id="alur-pertalite" style="display: flex; flex-direction: column; gap: 12px;">
+    <div id="alur-pertalite" style="display: flex; flex-direction: column; gap: 12px; overflow-y: auto;">
       <div class="guide-step">
         <div class="step-icon" style="background:#dbeafe;color:#2563eb;">1</div>
         <div class="step-info">
@@ -610,13 +610,13 @@
           <button class="btn primary sm" onclick="tryFeature('tab1')" style="margin-top: 6px;">Buka Cek Status</button>
         </div>
       </div>
-      <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px; font-size: 0.72rem; color: #991b1b; border-radius: 0 8px 8px 0;">
+      <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px; font-size: 0.72rem; color: #991b1b; border-radius: 0 8px 8px 0; margin-top: 4px;">
         <b>Penting:</b> Jika 1 NIK memiliki lebih dari 1 kapal, silakan <b>ulangi proses 1 sampai 4</b> di atas untuk masing-masing kapal secara terpisah.
       </div>
     </div>
 
     <!-- ALUR SOLAR -->
-    <div id="alur-solar" style="display: none; flex-direction: column; gap: 12px;">
+    <div id="alur-solar" style="display: none; flex-direction: column; gap: 12px; overflow-y: auto;">
       <div class="guide-step">
         <div class="step-icon" style="background:#dbeafe;color:#2563eb;">1</div>
         <div class="step-info">
@@ -636,7 +636,7 @@
         <div class="step-icon" style="background:#fef9c3;color:#ca8a04;">3</div>
         <div class="step-info">
           <h4>Siapkan & Upload File PDF</h4>
-          <p>Sama seperti Pertalite, siapkan dan unggah dokumen kapal Anda dalam format PDF (Maks. 1 MB) melalui *link* yang diberikan sistem.</p>
+          <p>Sama seperti Pertalite, siapkan dan unggah dokumen kapal Anda dalam format PDF (Maks. 1 MB) melalui <i>link</i> yang diberikan sistem.</p>
         </div>
       </div>
       <div class="guide-step">
@@ -662,30 +662,13 @@
           <button class="btn secondary sm" onclick="tryFeature('tab1')" style="margin-top: 6px; color: var(--text);">Buka Cek Status</button>
         </div>
       </div>
-      <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px; font-size: 0.72rem; color: #991b1b; border-radius: 0 8px 8px 0;">
+      <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px; font-size: 0.72rem; color: #991b1b; border-radius: 0 8px 8px 0; margin-top: 4px;">
         <b>Penting:</b> Pengajuan diproses satu per satu. Ulangi proses 1 sampai 6 di atas untuk masing-masing armada jika Anda memiliki lebih dari 1 kapal.
       </div>
     </div>
   </div>
-    <!-- ALUR SOLAR -->
-    <div id="alur-solar" style="display: none; flex-direction: column; gap: 12px;">
-      <div class="guide-step">
-        <div class="step-icon" style="background:#dbeafe;color:#2563eb;">1</div>
-        <div class="step-info">
-          <h4>Buat / Update Berkas Digital</h4>
-          <p>Buat atau update kelengkapan berkas digital kapal Anda di menu sistem.</p>
-          <button class="btn primary sm" onclick="tryFeature('tab3')" style="margin-top: 6px;">Buka Berkas Digital</button>
-        </div>
-      </div>
-      <div class="guide-step">
-        <div class="step-icon" style="background:#fef9c3;color:#ca8a04;">2</div>
-        <div class="step-info">
-          <h4>Bawa Berkas Fisik & Digital</h4>
-          <p>Bawa Berkas Digital, Rekom terakhir beserta lampiran tabel, dan Surat Permohonan fisiknya ke petugas dinas.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+
+  
   <!-- KONTEN 2: PANDUAN INSTALASI -->
   <div class="guide-body" id="gcontent-install" style="display:none;">
     <!-- Box Instal Otomatis (Muncul jika browser mendukung) -->
