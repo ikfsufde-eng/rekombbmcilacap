@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=36">
+<link rel="stylesheet" href="style.css?v=37">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
@@ -565,7 +565,8 @@
       </div>
     </div>
   </div>
-  <!-- KONTEN BARU: ALUR PENGAJUAN -->
+
+    <!-- KONTEN BARU: ALUR PENGAJUAN -->
   <div class="guide-body" id="gcontent-alur" style="display:none;">
     <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #e2e8f0; padding: 4px; border-radius: 12px; flex-shrink: 0;">
       <button id="btn-alur-pertalite" onclick="pilihAlur('pertalite')" style="flex: 1; padding: 8px; border: none; border-radius: 8px; background: #fff; font-weight: 700; color: #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; font-size: 0.8rem;">⛽ Alur Pertalite</button>
@@ -586,7 +587,7 @@
         <div class="step-icon" style="background:#dcfce7;color:#16a34a;">2</div>
         <div class="step-info">
           <h4>Kirim Pengajuan (WhatsApp)</h4>
-          <p>Isian form sebelumnya yang sudah diisi lalu ajukan pengajuan dengan Tekan tombol <b>Kirim Pengajuan</b> ke nomor WA Layanan. Data akan terekam oleh sistem. Anda akan menerima balasan ucapan terima kasih beserta <i>link</i> untuk upload berkas.</p>
+          <p>Isian form sebelumnya yang sudah diisi lalu ajukan pengajuan dengan Tekan tombol <b>Kirim Pengajuan</b> atau copy paste isian form dan kirim ke nomor WA Layanan. Data akan terekam oleh sistem. Anda akan menerima balasan ucapan terima kasih beserta <i>link</i> untuk upload berkas.</p>
           <button class="btn primary sm" onclick="window.open('https://wa.me/6285156260107', '_blank')" style="margin-top: 6px; background: #25d366;"><i class="material-icons-round" style="font-size: 16px;">whatsapp</i> WA Rekomendasi</button>
         </div>
       </div>
@@ -594,15 +595,16 @@
         <div class="step-icon" style="background:#fef9c3;color:#ca8a04;">3</div>
         <div class="step-info">
           <h4>Siapkan & Upload File PDF</h4>
-          <p>Melalui link yang diberikan, unggah dokumen PDF (Maks. 1 MB) dengan susunan:</p>
+          <p>Melalui link yang diberikan, unggah dokumen PDF (Maks. 1 MB Gunakan Scan dari dokumen asli (Format PDF), TEGAK, UTUH DAN TERBACA, bukan fotocopy) dengan susunan:</p>
           <ol style="margin-left: 14px; font-size: 0.75rem; color: var(--muted); margin-top: 4px; line-height: 1.5;">
-            <li style="margin-bottom: 8px;">Surat Permohonan, KTP, dan KUSUKA.<br>
-              <button class="btn secondary sm" onclick="window.open('LINK_CONTOH_1', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Contoh Dokumen</button>
+            <li style="margin-bottom: 8px;">Kolom Foto KTP: PDF Gabungan (Scan asli Permohonan+KTP+KUSUKA) Gabungan semua kapal 1 NIK.<br>
+              <button class="btn secondary sm" onclick="window.open('https://drive.google.com/uc?export=download&id=1EOvCLHZZF2c0-p_F18GFR4SIp01McYfO', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Download Contoh Surat Permohonan</button>
+			  <button class="btn secondary sm" onclick="window.open('LINK_CONTOH_1', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Contoh Dokumen</button>
             </li>
-            <li style="margin-bottom: 8px;">Gabungan Pas Kecil & E-BKP.<br>
+            <li style="margin-bottom: 8px;"> Kolom Foto Kapal: PDF Scan Asli Pas Kecil Gabungan semua kapal 1 NIK + EBKP. Jika Kartu Epas Kecil konversi dulu, scan barcode belakang kartu dan lampirkan hasilnya<br>
               <button class="btn secondary sm" onclick="window.open('LINK_CONTOH_2', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Contoh Dokumen</button>
             </li>
-            <li style="margin-bottom: 6px;">Foto <i>selfie</i> di samping kalender (menunjuk bulan pengajuan). <b>Khusus Perpanjangan:</b> Rekomendasi bulan lalu beserta lampiran tabel yang sudah diisi oleh pihak Pom Bensin.<br>
+            <li style="margin-bottom: 6px;">Kolom Pas Kecil: Foto <i>selfie</i> di samping kalender (menunjuk bulan pengajuan). <b>Khusus Perpanjangan:</b> Rekomendasi bulan lalu beserta lampiran tabel yang sudah diisi oleh pihak Pom Bensin.<br>
               <button class="btn secondary sm" onclick="window.open('LINK_CONTOH_3', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Contoh Dokumen</button>
             </li>
           </ol>
@@ -612,12 +614,12 @@
         <div class="step-icon" style="background:#e0e7ff;color:#4f46e5;">4</div>
         <div class="step-info">
           <h4>Pantau Status</h4>
-          <p>Cek status permohonan secara berkala. Jika berhasil akan keluar <b>"Sedang diverifikasi"</b>. Jika ada catatan, perbaiki sesuai catatan. Rekom yang jadi akan dikirim melalui WA ke nomor pemohon yang didaftarkan.</p>
+          <p>Cek status permohonan secara berkala. Jika berhasil dan Permohonan sudah masuk sistem, status permohonan akan muncul <b>"Sedang diverifikasi"</b>. Jika ada catatan, perbaiki sesuai catatan. Rekom yang jadi akan dikirim melalui WA ke nomor pemohon yang didaftarkan.</p>
           <button class="btn primary sm" onclick="tryFeature('tab1')" style="margin-top: 6px;">Buka Cek Status</button>
         </div>
       </div>
       <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px; font-size: 0.72rem; color: #991b1b; border-radius: 0 8px 8px 0; margin-top: 4px;">
-        <b>NB:</b> Jika 1 NIK ada lebih dari 1 kapal, ulangi proses sebelumnya untuk semua kapal.
+        <b>NB:</b> Jika 1 NIK ada lebih dari 1 kapal, ulangi proses sebelumnya untuk kapal seterusnya.
       </div>
     </div>
 
@@ -643,12 +645,12 @@
         <div class="step-icon" style="background:#fef9c3;color:#ca8a04;">3</div>
         <div class="step-info">
           <h4>Siapkan & Upload File PDF</h4>
-          <p>Melalui link yang diberikan, unggah dokumen PDF (Maks. 1 MB) dengan susunan:</p>
+          <p>Melalui link yang diberikan, masuk ke Google Form untuk unggah dokumen PDF (Maks. 1 MB) dengan susunan:</p>
           <ol style="margin-left: 14px; font-size: 0.75rem; color: var(--muted); margin-top: 4px; line-height: 1.5;">
-            <li style="margin-bottom: 8px;">Surat Permohonan, KTP, dan KUSUKA.<br>
+            <li style="margin-bottom: 8px;">Kolom Foto KTP: PDF Scan Permohonan Gabungan semua kapal.<br>
               <button class="btn secondary sm" onclick="window.open('LINK_CONTOH_SOLAR_1', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Contoh Dokumen</button>
             </li>
-            <li style="margin-bottom: 6px;">Gabungan Pas Besar & E-BKP.<br>
+            <li style="margin-bottom: 6px;">Kolom Foto Kapal: PDF PAS Besar Gabungan semua kapal.<br>
               <button class="btn secondary sm" onclick="window.open('LINK_CONTOH_SOLAR_2', '_blank')" style="margin-top: 4px; padding: 4px 8px; font-size: 0.65rem;"><i class="material-icons-round" style="font-size: 14px;">visibility</i> Contoh Dokumen</button>
             </li>
           </ol>
@@ -659,7 +661,8 @@
         <div class="step-info">
           <h4>Buat / Update Berkas Digital</h4>
           <p>Masuk ke menu <b>Berkas Digital</b>. Buat atau perbarui (<i>update</i>) kelengkapan dokumen armada kapal Anda di sana.</p>
-          <button class="btn primary sm" onclick="tryFeature('tab3')" style="margin-top: 6px; background: #be185d; border: none;">Buka Berkas Digital</button>
+          <button class="btn primary sm" onclick="tryFeature('tab3')" style="margin-top: 6px; background: #be185d; border: none;">Buat Berkas Digital Baru</button>
+		  <button class="btn primary sm" onclick="tryFeature('tab4')" style="margin-top: 6px; background: #be185d; border: none;">Update Berkas Digital Lama</button>
         </div>
       </div>
       <div class="guide-step">
